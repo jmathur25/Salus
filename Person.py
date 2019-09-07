@@ -174,3 +174,22 @@ def getAdminPhoneNums():
     result = cursor.fetchall()
     return result
 
+
+@person.route('/sendPersonCheckin')
+def sendPersonCheckin():
+    phoneNumber = request.args.get('phoneNumber')
+    sid = get_file_contents('sid.txt')
+    authToken = get_file_contents('TwilioAuth.txt')
+    client = Client(
+        sid,
+        authToken
+    )
+
+    mes = client.messages.create(
+        to= str(phoneNumber),
+        from_ = '15087318632',
+        body = "This is a checkin text from an administrator asking you to send a message about your status"
+
+    )
+
+    return ('', 204)
