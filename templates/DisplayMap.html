@@ -5,46 +5,47 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" >
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }#map {
-        position: relative;
-        height: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" type='text/css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
     <script type="text/javascript" src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='setup.js') }}"></script>
   </head>
   <body>
    
-    <div id="map"></div>
+    <div id="wrapper">
+      <div id="map"></div>
 
-    <div id="overlay">
-      <h4 style="color: black; text-align: center; margin-top: 0%">Salus</h4>
-  </div>
-    <script>
-        // Create map
-        const cur_lat = parseFloat("{{ lat }}");
-        const cur_lng = parseFloat("{{ lng }}");
-        const cur_zoom = parseFloat("{{ zoom }}");
-        const access_key = "{{ access_key }}";
+      <div id="overlay">
+        <div id="center-items">
+          <img id="logo" src="{{ url_for('static', filename='salus-logo-web.png') }}">
+          <div id="schoolFields">
+              <input type="text" id="schoolInput" value="">
+              <button class="btn btn-primary" type="submit" id="schoolGo">Go</button>
 
-        // config.yml decides this
-        var map = L.map('map').setView([ cur_lat, cur_lng ], cur_zoom);
+          </div>
+        </div>
 
-        // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
-        }).addTo(map);
+      </div>
+      <script>
+          // Create map
+          const cur_lat = parseFloat("{{ lat }}");
+          const cur_lng = parseFloat("{{ lng }}");
+          const cur_zoom = parseFloat("{{ zoom }}");
+          const access_key = "{{ access_key }}";
 
-    </script>
+          // config.yml decides this
+          var map = L.map('map').setView([ cur_lat, cur_lng ], cur_zoom);
+
+          // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
+          L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
+              attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+              maxZoom: 18,
+              id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
+          }).addTo(map);
+
+      </script>
+    </div>
   </body>
 
 </html>
