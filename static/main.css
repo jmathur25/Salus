@@ -50,3 +50,15 @@ div#overlay {
   margin-left: 20px;
   margin-right: 10px;
 }
+
+.navbar {
+  background-color: rgb(95, 143, 190);
+}
+
+.navbar img {
+  overflow: hidden;
+}
+
+.modal-header {
+  text-align: center;
+}

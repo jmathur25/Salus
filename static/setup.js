@@ -1,6 +1,7 @@
 var schoolName = "";
 
 window.onload = function() {
+
     var schoolInput = document.getElementById("schoolInput");
     var goInput = document.getElementById("schoolGo");
 
@@ -20,6 +21,7 @@ window.onload = function() {
     goInput.onclick = function(event) {
         schoolName = schoolInput.value;
         fadeOutEffect();
+        showModal();
     };
 };
 
@@ -34,5 +36,15 @@ function fadeOutEffect() {
         } else {
             clearInterval(fadeEffect);
         }
-    }, 200);
+    }, 100);
+}
+
+function showModal() {
+    setTimeout(function() {
+        $("#exampleModal").modal()
+    }, 2000);
+}
+
+function enableMap() {
+    document.getElementById("overlay").style.display = "none";
 }
