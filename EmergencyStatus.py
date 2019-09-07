@@ -21,14 +21,14 @@ def getLatLong():
     protocolID = request.args.get('protocolID')
 
     query = """
-        Select protocolID, ProtocolSynthesis.buildingID, latitude, longitude, schoolName, updated_at, created_at 
-        From ( 
-		    Select * 
-            From ProtocolToBuilding 
-            Where ProtocolToBuilding.protocolID = %s 
-            ) as ProtocolSynthesis Join GeoFeatures  
-        on buildingID = GeoFeatures.idBuilding AND schoolName = %s 
-        order by created_at;  
+            Select protocolID, ProtocolSynthesis.buildingID, latitude, longitude, schoolName, buildingStatus, updated_at, created_at 
+            From (
+                    Select ProtocolToBuilding.protocolID, ProtocolStatusInitial.buildingID, buildingStatus 
+                    From ProtocolToBuilding, ProtocolStatusInitial 
+                    Where ProtocolToBuilding.protocolID = %s and ProtocolStatusInitial.buildingID = ProtocolToBuilding.buildingID 
+                 ) as ProtocolSynthesis Join GeoFeatures  
+            on buildingID = GeoFeatures.idBuilding AND schoolName = %s
+            order by created_at;  
     """
 
     cursor = cnx.cursor()
@@ -37,5 +37,5 @@ def getLatLong():
 
     buildingPoints = []
     for res in result:
-        buildingPoints.append({"protocolID": res[0], "buildingID": res[1], "latitude": res[2], "longitude": res[3], "schoolName": res[4]})
+        buildingPoints.append({"protocolID": res[0], "buildingID": res[1], "latitude": res[2], "longitude": res[3], "schoolName": res[4], "buildingStatus": res[5]})
     return jsonify(buildingPoints)
