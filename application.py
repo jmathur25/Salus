@@ -23,6 +23,8 @@ application.register_blueprint(geo_features, url_prefix="/building")
 application.register_blueprint(protocol_pick, url_prefix="/protocolPicker")
 
 
+mrcnn = None
+
 # useful function for turning request data into usable dictionaries
 def result_to_dict(result):
     info = {}
@@ -38,7 +40,7 @@ def get_program_config():
 def get_imd():
     # do imd = get_imd() in all functions
     config = get_program_config()
-    return imagery.ImageryDownloader(config["imageryURL"], config["accessKey"])
+    return imagery.ImageryDownloader(config['accessKey'])
 
 @application.route('/', methods=['GET'])
 def home(zoom=None, lat=None, lng=None):
@@ -60,6 +62,71 @@ def home(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
+@application.route('/setup', methods=['POST'])
+def setup():
+    # from .setup import ...
+    return "success"
+
+@application.route('/setup/corners', methods=['POST'])
+def identify_region():
+    result = request.form
+    info = result_to_dict(result)
+    lat = float(info['lat'])
+    lng = float(info['lng'])
+    zoom = float(info['zoom'])
+
+    imd = get_imd()
+    # old way, tabling for now...
+    # image = imd.get_image_from_latlng_outline((lat1, lng1), (lat2, lng2))
+    # image.save('setup/setup_image.png')
+    # image = np.array(image) # detection needs an np array
+    
+    # find xtile, ytile
+    xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
+    image = np.array(imd.download_tile(xtile, ytile, zoom))
+
+    # SETUP MRCNN STUFF
+    global mrcnn
+    if mrcnn is None: # import if not already imported
+        print('import MRCNN stuff...')
+        from Mask_RCNN_Detect import Mask_RCNN_Detect
+        mrcnn = Mask_RCNN_Detect('weights/epoch55.h5')
+
+    mask_data = mrcnn.detect_building(image, lat, lng, zoom)
+    building_ids = list(mask_data.keys())
+    building_points = list(mask_data.values())
+
+    json_post = {"rects_to_add": [{
+                            "ids": building_ids,
+                            "points": building_points
+                        }],
+        "rects_to_delete": {"ids": []}
+                                }
+    return json.dumps(json_post)
+
+@application.route('/setup/delete', methods=['POST'])
+def delete_building():
+    result = request.form
+    info = result_to_dict(result)
+    lat = float(info['lat'])
+    lng = float(info['lng'])
+    zoom = float(info['zoom'])
+
+    building_id = None
+    if 'building_id' in info:
+        building_id = info['building_id']
+
+    global mrcnn
+    if mrcnn is not None:
+        building_id = mrcnn.delete_mask(lat, lng, zoom, building_id)
+
+        json_post = {"rects_to_delete":
+                        {"ids": [building_id]}
+                    }
+        return json_post
+
+    return 'mrcnn has not been made'
+
 # run the app.
 if __name__ == "__main__":
     config = config_reader.get_config()
@@ -75,9 +142,6 @@ if __name__ == "__main__":
     # Get the imagery URL and access key
     imagery_url = config["imageryURL"]
     access_key = config["accessKey"]
-
-    # Create imagery downloader
-    imd = imagery.ImageryDownloader(imagery_url, access_key)
 
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.

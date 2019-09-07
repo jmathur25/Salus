@@ -1,9 +1,14 @@
 .vscode
 website_password.txt
 application_local.py
+ssh_server.txt
+*.ipynb
+.ipynb_checkpoints
+
 
 default_images
 mrcnn
 weights
 
 *.ipynb
+
