@@ -132,12 +132,10 @@ class Mask_RCNN_Detect():
         image = (resize(image, (320, 320), anti_aliasing=True) * 256).astype(np.uint8)
         detection = self.model.detect(
             [imageio.core.util.Array(image)])
-        print('basic detection ran')
         masks = detection[0]['masks']
         masks = self._small_merge(masks)
             
         if rectanglify:
-            print('in rectanglify')
             # finds all buildings (one building has the same number in masks)
             building_ids = np.unique(masks)
             building_ids = building_ids[building_ids != 0]
@@ -148,7 +146,9 @@ class Mask_RCNN_Detect():
                 plottable = []
                 for x,y in zip(points[:,0], points[:,1]):
                     plottable.append((y, x))
-                    if not to_fill: out_mask[x,y,:] = np.array([i+1,i+1,i+1]) # gets the corner
+                    if not to_fill: # if not to_fill, then we need to exyract the courses
+                        out_mask[x,y,:] = np.array([self.image_id + 1] * 3) # gets the corner
+                        self.image_id += 1 # gives each building a unique id
                 tmp = np.copy(plottable[2]) # reorders points
                 plottable[2] = plottable[3]
                 plottable[3] = tmp
