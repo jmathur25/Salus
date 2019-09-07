@@ -11,6 +11,30 @@ message_board  = Blueprint('message_board', __name__)
 def index():
     return '/'
 
+@message_board.route('/getAll')
+def getAllMessages():
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    query = """
+            Select fullName, phoneNumber, message, created_at
+            From People, MessageBoard 
+            Where People.id = MessageBoard.personId and schoolName = "UIUC" and fullName is not NULL
+            Order By created_at DESC; 
+             """
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    retList = []
+    for res in result:
+        retList.append({"fullName": res[0], "phoneNumber": res[1], "message": res[2]})
+    print(result)
+    return jsonify(retList)
+
 
 
 @message_board.route('/send', methods=['GET', 'POST'])
