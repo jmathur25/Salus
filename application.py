@@ -49,20 +49,6 @@ def home(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
-# @app.route('/home/mapclick', methods=['POST'])
-# def mapclick():
-#     if request.method == 'POST':
-#         result = request.form
-#         info = result_to_dict(result)
-#         print(info)
-
-#         # example of how to parse
-#         lat = float(info['lat'])
-#         long = float(info['long'])
-#         zoom = int(info['zoom'])
-        
-        # return json.dumps(json_post)
-
 # run the app.
 if __name__ == "__main__":
     config = config_reader.get_config()
@@ -78,8 +64,6 @@ if __name__ == "__main__":
     # Get the imagery URL and access key
     imagery_url = config["imageryURL"]
     access_key = config["accessKey"]
-
-    print("CONFIG", config)
 
     # Create imagery downloader
     imd = imagery.ImageryDownloader(imagery_url, access_key)
