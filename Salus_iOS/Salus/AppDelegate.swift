@@ -20,6 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     
+    // Set minimum fetch interval (once every ten seconds
+    UIApplication.shared.setMinimumBackgroundFetchInterval(10)
+    
     if !UserDefaults.standard.bool(forKey: "didSee") {
       UserDefaults.standard.set(true, forKey: "didSee")
       print("here")
@@ -29,8 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       self.window?.rootViewController = viewController
       self.window?.makeKeyAndVisible()
     }
-    
-    UIApplication.shared.setMinimumBackgroundFetchInterval(10)
     
     // Override point for customization after application launch.
     locationManager.requestAlwaysAuthorization()
@@ -53,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                    performFetchWithCompletionHandler completionHandler:
     @escaping (UIBackgroundFetchResult) -> Void) {
     // check to see if emergency is occurring
+    print("FETCHING")
     if fetchUpdates() {
       // start updating location, sending it to database
       locationManager.startUpdatingLocation()
@@ -84,30 +86,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     return true
   }
   
-  func updatePersonLocation(p_id: String, lat: String, long: String) {
-    let parameters = ["p_id": p_id, "lat": lat, "long": long]
-    
-    //create the url with URL
-    let url = URL(string: Constants.siteUrl + "person/update_location_person")! //change the url
-    
-    //create the session object
-    let session = URLSession.shared
-    
-    //now create the URLRequest object using the url object
+  func updatePersonLocation(pid: String, lat: String, long: String) {
+    print("updating person location")
+    let url = URL(string: Constants.siteUrl + "person/updateLocationPerson?pid=\(pid)&latitude=\(lat)&longitude=\(long)")! //change the url
+
     var request = URLRequest(url: url)
     request.httpMethod = "POST" //set http method as POST
     
-    do {
-      request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted) // pass dictionary to nsdata object and set it as request body
-    } catch let error {
-      print(error.localizedDescription)
-    }
-    
-    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.addValue("application/json", forHTTPHeaderField: "Accept")
-    
     //create dataTask using the session object to send data to the server
-    let task = session.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
+    let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
       
       guard error == nil else {
         return
@@ -120,6 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       do {
         //create json object from data
         if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any] {
+          print("HERE")
           print(json)
           // handle json...
         }
@@ -136,7 +124,7 @@ extension AppDelegate: CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     if let currentLocation = locations.last {
       print("Current location: \(currentLocation)")
-      updatePersonLocation(p_id: String(UserDefaults.standard.integer(forKey: "p_id")), lat: String(currentLocation.coordinate.latitude), long: String(currentLocation.coordinate.longitude))
+      updatePersonLocation(pid: UserDefaults.standard.string(forKey: "pid")!, lat: String(currentLocation.coordinate.latitude), long: String(currentLocation.coordinate.longitude))
     }
   }
   

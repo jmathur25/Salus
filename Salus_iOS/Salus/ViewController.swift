@@ -40,8 +40,9 @@ class ViewController: UIViewController, WKUIDelegate, UITextFieldDelegate {
       let latitude = location?.coordinate.latitude as! Double
       let longitude = location?.coordinate.longitude as! Double
       
-      let urlString = Constants.siteUrl + String(latitude) + "/" + String(longitude)
+      let urlString = Constants.siteUrl + "15/" + String(latitude) + "/" + String(longitude)
       // Do any additional setup after loading the view.
+      print(urlString)
       let myURL = URL(string:urlString)
       let myRequest = URLRequest(url: myURL!)
       webview.load(myRequest)

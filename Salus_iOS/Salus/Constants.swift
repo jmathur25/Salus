@@ -9,5 +9,5 @@
 import Foundation
 
 struct Constants {
-  static let siteUrl = ""
+  static let siteUrl = "http://salus.kxgp8z9g5d.us-east-2.elasticbeanstalk.com/"
 }
