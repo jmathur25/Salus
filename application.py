@@ -3,6 +3,7 @@ import shutil
 import numpy as np
 import json
 from Person import person
+from MessageBoard import message_board
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
 # my own files
@@ -13,6 +14,7 @@ import geolocation
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 application.register_blueprint(person, url_prefix="/person" )
+application.register_blueprint(message_board, url_prefix="/message" )
 
 
 # useful function for turning request data into usable dictionaries
