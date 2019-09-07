@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>OSM Building Detector</title>
+    <title>Salus Web View</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" >
@@ -30,104 +30,20 @@
     <div id="map"></div>
     <script>
         // Create map
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        const cur_lat = parseFloat("{{ lat }}");
+        const cur_lng = parseFloat("{{ lng }}");
+        const cur_zoom = parseFloat("{{ zoom }}");
+        const access_key = "{{ access_key }}";
+
+        // config.yml decides this
+        var map = L.map('map').setView([ cur_lat, cur_lng ], cur_zoom);
 
         // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.accessKey }}', {
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             maxZoom: 18,
             id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
         }).addTo(map);
-
-        // Popup to show when the user clicks
-        var popup = L.popup();
-
-        // Handle map clicks
-        function onMapClick(e) {
-            if (isSync && map.getZoom() == 18) {
-              //uploads are now valid so button is enabled (or re-enabled)
-              uploadButton.enable();
-              /*popup.setLatLng(e.latlng);
-              popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
-              popup.openOn(map);*/
-              // Send the map click
-              console.log('map click');
-              console.log('threshold:', current_threshold);
-              console.log('delete click: ', deleteClick);
-              console.log('merge mode:', mergeMode);
-              console.log("CURRENT POLYGONS:", polygons);
-              if (deleteClick == 'true') {
-                  deleteLatClick = e.latlng.lat;
-                  deleteLongClick = e.latlng.lng;
-              }
-              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") +
-                            "&long=" + encodeURIComponent(e.latlng.lng + "") +
-                            "&zoom=" + encodeURIComponent(map.getZoom()) +
-                            "&complex=" + complex +
-                            "&threshold="+current_threshold +
-                            "&delete_click=" + deleteClick +
-                            "&merge_mode=" + mergeMode + 
-                            "&delete_lat=" + deleteLatClick +
-                            "&delete_long=" + deleteLongClick;
-              var xhr = new XMLHttpRequest();
-              xhr.open("POST", "./mapclick", true);
-              xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-              // Wait for a response
-              console.log("waiting for response...")
-              xhr.onreadystatechange = function() {
-                  if (xhr.readyState == 4 && xhr.status == 200) {
-
-                    // Parse the response
-                    var responseJson = JSON.parse(xhr.responseText);
-                    var rectsToAdd = responseJson["rects_to_add"];
-                    var rectsToDelete = responseJson["rects_to_delete"];
-
-                    // Delete polygon(s)
-                    if (rectsToDelete["ids"].length > 0) {
-                        // removeMasks(rectsToDelete["ids"]);
-                        removePolygon(rectsToDelete['ids']);
-                    }
-
-                    // Add polygon(s)
-                    console.log("Got response");
-                    if (rectsToAdd.length > 0) {
-                            // updates the backend window
-                            backendWindow.onRemove(map);
-
-                            var rect = rectsToAdd[0];
-                            var rectPoints = rect["points"];
-                            var rectIds = rect["ids"];
-
-                            console.log("IDS", rectIds);
-
-                            // addMasks(rectIds, rectPoints);
-                            addPolygon(rectPoints, rectIds);
-                    } else {
-                        if (rectsToDelete.length > 0) {
-                            popup.setLatLng(e.latlng);
-                            popup.setContent("You clicked inside a mapped building. Please click elsewhere");
-                            popup.openOn(map);
-                        } else {
-                            popup.setLatLng(e.latlng);
-                            popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
-                            popup.openOn(map);
-                        }
-                    }
-                }
-            }
-            xhr.send(params);
-            } else {
-              popup.setLatLng(e.latlng);
-              if (map.getZoom() != 18) {
-                popup.setContent("You need to zoom in fully before mapping buildings.");
-              }
-              else {
-                 popup.setContent("You need to enable Sync before mapping to see what is already mapped!");
-              }
-              popup.openOn(map);
-            }
-        }
-        map.on("click", onMapClick);
 
     </script>
   </body>

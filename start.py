@@ -4,5 +4,5 @@ import config_reader
 config = config_reader.get_config()
     
 # Start Flask
-import app
-app.start_webapp(config)
+import application
+application.start_webapp(config)
