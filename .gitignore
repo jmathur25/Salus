@@ -2,6 +2,7 @@
 config.yml
 website_password.txt
 Mask_RCNN_Detect.py
+salusenv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
