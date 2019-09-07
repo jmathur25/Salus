@@ -10,6 +10,7 @@ import UIKit
 import CoreLocation
 import CoreMotion
 import UserNotifications
+import os.log
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,10 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   let locationManager = CLLocationManager()
   let center = UNUserNotificationCenter.current()
 
+  fileprivate let log = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "log")
+  
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     
-    // Set minimum fetch interval (once every ten seconds
-    UIApplication.shared.setMinimumBackgroundFetchInterval(10)
+    os_log("didFinishLaunching", log: log)
+    
+    // Set minimum fetch interval
+    UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
     
     if !UserDefaults.standard.bool(forKey: "didSee") {
       UserDefaults.standard.set(true, forKey: "didSee")
@@ -53,8 +58,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    performFetchWithCompletionHandler completionHandler:
     @escaping (UIBackgroundFetchResult) -> Void) {
+    os_log("performFetchWithCompletionHandler", log: log)
+    
     // check to see if emergency is occurring
-    print("FETCHING")
+    debugPrint("FETCHING")
     if fetchUpdates() {
       // start updating location, sending it to database
       locationManager.startUpdatingLocation()
@@ -70,6 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func applicationWillEnterForeground(_ application: UIApplication) {
     // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    os_log("applicationWillEnterForeground", log: log)
   }
 
   func applicationDidBecomeActive(_ application: UIApplication) {
@@ -83,18 +91,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func fetchUpdates() -> Bool {
     // get information from himanshu on whether an emergency is occurring or not
     // return true if an emergency is occurring, false otherwise
-    return true
-  }
-  
-  func updatePersonLocation(pid: String, lat: String, long: String) {
-    print("updating person location")
-    let url = URL(string: Constants.siteUrl + "person/updateLocationPerson?pid=\(pid)&latitude=\(lat)&longitude=\(long)")! //change the url
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST" //set http method as POST
+    print("fetching for emergency status updates")
     
-    //create dataTask using the session object to send data to the server
+    let url = URL(string: Constants.siteUrl + "emergency/isActiveEmergency")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    
+    var isEmergency = false
+    
     let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
+      print(response)
       
       guard error == nil else {
         return
@@ -106,8 +112,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       
       do {
         //create json object from data
-        if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any] {
-          print("HERE")
+        if let result = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Bool {
+          isEmergency = result
+          // handle json...
+        }
+      } catch let error {
+        print(error.localizedDescription)
+      }
+    })
+    task.resume()
+    
+    return isEmergency
+  }
+  
+  func updatePersonLocation(pid: String, lat: String, long: String) {
+    print("updating person location")
+    let url = URL(string: Constants.siteUrl + "person/updateLocationPerson?pid=\(pid)&latitude=\(lat)&longitude=\(long)")! //change the url
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST" //set http method as POST
+    
+    //create dataTask using the session object to send data to the server
+    let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
+      print(response)
+      
+      guard error == nil else {
+        return
+      }
+      
+      guard let data = data else {
+        return
+      }
+      
+      do {
+        //create json object from data
+        if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Any {
           print(json)
           // handle json...
         }
@@ -124,7 +163,7 @@ extension AppDelegate: CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     if let currentLocation = locations.last {
       print("Current location: \(currentLocation)")
-      updatePersonLocation(pid: UserDefaults.standard.string(forKey: "pid")!, lat: String(currentLocation.coordinate.latitude), long: String(currentLocation.coordinate.longitude))
+      updatePersonLocation(pid: UserDefaults.standard.string(forKey: "pid") ?? "15", lat: String(currentLocation.coordinate.latitude), long: String(currentLocation.coordinate.longitude))
     }
   }
   
