@@ -18,21 +18,21 @@ def getLatLong():
     cnx = mysql.connector.connect(user='root', password='Shatpass',
                                   host=host_name,
                                   database='innodb')
-    # id = request.args.get('pid')
+    protocolID = request.args.get('protocolID')
 
     query = """
         Select protocolID, ProtocolSynthesis.buildingID, latitude, longitude, schoolName, updated_at, created_at 
         From ( 
 		    Select * 
             From ProtocolToBuilding 
-            Where ProtocolToBuilding.protocolID = 1 
+            Where ProtocolToBuilding.protocolID = %s 
             ) as ProtocolSynthesis Join GeoFeatures  
-        on buildingID = GeoFeatures.idBuilding AND schoolName = "UIUC" 
+        on buildingID = GeoFeatures.idBuilding AND schoolName = %s 
         order by created_at;  
     """
 
     cursor = cnx.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (protocolID, "UIUC"))
     result = cursor.fetchall()
 
     buildingPoints = []
