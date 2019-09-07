@@ -3,10 +3,14 @@ config.yml
 website_password.txt
 HostDB
 Mask_RCNN_Detect.py
+*.ipynb
+weights/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+ssh_server.txt
 
 # C extensions
 *.so
