@@ -64,7 +64,6 @@ class ViewController: UIViewController, WKUIDelegate, UITextFieldDelegate {
   
   
   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-    print("here")
     textField.resignFirstResponder()
     return true
   }
