@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, render_template, redirect
 import mysql.connector
 from flask import Blueprint
 from Person import get_file_contents
@@ -8,7 +8,12 @@ emergency_status  = Blueprint('emergency_status', __name__)
 
 @emergency_status.route('/')
 def index():
-    return '/'
+
+    if isActiveEmergency:
+
+        return render_template('Dashboard.html')
+    else:
+        return render_template()
 
 
 def getQueryBuildingInit():
@@ -83,7 +88,7 @@ def startEmergency():
         cursor.execute(insertQuery, (res[0], res[1], "UIUC"))
         cnx.commit()
 
-    return jsonify(True)
+    return redirect("/emergency", code=302)
 
 
 
