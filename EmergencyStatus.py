@@ -152,3 +152,28 @@ def removeBuilding():
     cnx.commit()
 
     return jsonify(True)
+
+
+@emergency_status.route('/changeStatus', methods=['GET', 'POST'])
+def changeStatus():
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    buildingId = request.args.get('buildingId')
+    status = request.args.get('status')
+
+
+    insertQuery = """
+                    Update ProtocolStatusCurrent 
+                    Set ProtocolStatusCurrent.buildingStatus = %s
+                    Where ProtocolStatusCurrent.buildingID = %s AND ProtocolStatusCurrent.schoolName = %s
+                    """
+    cursor = cnx.cursor()
+    cursor.execute(insertQuery, (status, buildingId, "UIUC"))
+    cnx.commit()
+
+    return jsonify(True)
