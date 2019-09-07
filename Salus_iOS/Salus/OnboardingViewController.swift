@@ -8,23 +8,41 @@
 
 import UIKit
 
-class OnboardingViewController: UIViewController {
+class OnboardingViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: Outlets
+  @IBOutlet weak var salusLogo: UIImageView!
+  @IBOutlet weak var nameTextField: UITextField!
   @IBOutlet weak var schoolTextField: UITextField!
+  @IBOutlet weak var phoneNumberTextField: UITextField!
   
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-
+      
+      let screenBounds = self.view.bounds
+      
+      self.nameTextField.delegate = self
+      self.schoolTextField.delegate = self
+      self.phoneNumberTextField.delegate = self
+      
+      self.salusLogo.center = CGPoint(x: screenBounds.width / 2 - 10, y: screenBounds.height / 4)
+      
+      let inputTextBoxPadding = screenBounds.width / 20
+      let inputTextBoxHeight = self.nameTextField.bounds.height
+      let inputTextBoxStart = screenBounds.height * 1.5 / 3
+      
+      self.nameTextField.center = CGPoint(x: screenBounds.width / 2, y: inputTextBoxStart)
+      self.schoolTextField.center = CGPoint(x: screenBounds.width / 2, y: inputTextBoxStart + inputTextBoxPadding + inputTextBoxHeight)
+      self.phoneNumberTextField.center = CGPoint(x: screenBounds.width / 2, y: inputTextBoxStart + 2 * inputTextBoxPadding + 2 * inputTextBoxHeight)
     }
     
   @IBAction func enter(_ sender: UIButton) {
     let uuid = UIDevice.current.identifierForVendor?.uuidString
     let school  = schoolTextField.text
+    let name = nameTextField.text
+    let phoneNumber = phoneNumberTextField.text
     
-    addPersonToDb(uuid: uuid!, school: school!)
+    addPersonToDb(uuid: uuid!, school: school!, name: name!, phoneNumber: phoneNumber!)
     self.performSegue(withIdentifier: "initialSegue", sender: self)
   }
   
@@ -38,9 +56,9 @@ class OnboardingViewController: UIViewController {
     }
     */
   
-  func addPersonToDb(uuid: String, school: String) {
+  func addPersonToDb(uuid: String, school: String, name: String, phoneNumber: String) {
     //create the url with URL
-    let url = URL(string: Constants.siteUrl + "person/createPerson?uuid=" + uuid + "&school=" + school)!
+    let url = URL(string: Constants.siteUrl + "person/createPerson?uuid=\(uuid)&school=\(school)&name=\(phoneNumber)")!
     
     //now create the URLRequest object using the url object
     var request = URLRequest(url: url)
@@ -59,10 +77,7 @@ class OnboardingViewController: UIViewController {
         do {
           //create json object from data
           if let json = try JSONSerialization.jsonObject(with: data!, options: .mutableContainers) as? [[Any]] {
-            print("ADDED PERSON TO DATABASE")
-            print("Person id: \(json[0][0])")
             UserDefaults.standard.set("pid", forKey: "\(json[0][0])")
-            // handle json...
           }
         } catch let error {
           print(error.localizedDescription)
@@ -72,5 +87,10 @@ class OnboardingViewController: UIViewController {
     }
     task.resume()
   }
-
+  
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool
+  {
+    textField.resignFirstResponder()
+    return true
+  }
 }
