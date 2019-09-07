@@ -5,3 +5,5 @@ Create Table People(
     currentLongitude DOUBLE, 
     usualSchool VARCHAR(255)
 );
+
+

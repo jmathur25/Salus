@@ -1,4 +1,3 @@
-
 Create Table GeoFeatures (
 	id INT not Null primary key AUTO_INCREMENT,
 	idBuilding INT, 
