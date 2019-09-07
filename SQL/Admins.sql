@@ -1,4 +1,5 @@
+
 Create Table Admins(
-	personId int, 
-    phoneNumber VARCHAR(9)
+	personId INT, 
+    phoneNumber VARCHAR(15)
 ); 

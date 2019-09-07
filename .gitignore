@@ -5,6 +5,8 @@ HostDB
 Mask_RCNN_Detect.py
 *.ipynb
 weights/
+sid.txt
+TwilioAuth.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

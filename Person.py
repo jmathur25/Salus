@@ -1,6 +1,7 @@
 from flask import jsonify, request
 import mysql.connector
 from flask import Blueprint
+from twilio.rest import Client
 
 person  = Blueprint('person', __name__)
 
@@ -126,4 +127,27 @@ def updateLocationPerson():
     return "0"
 
 
+
+
+@person.route('/getAdminPhoneNums')
+def getJSONAdminNums():
+    return jsonify(getAdminPhoneNums);
+
+def getAdminPhoneNums():
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+    id = request.args.get('pid')
+    query = """
+        Select * from Admins; 
+    """
+
+
+
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    return result
 
