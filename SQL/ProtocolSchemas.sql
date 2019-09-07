@@ -23,7 +23,7 @@ Create Table ProtocolStatusCurrent(
 	id INT not Null primary key AUTO_INCREMENT,
 	buildingID INT, 
     buildingStatus VARCHAR(255),
-    protocolName VARCHAR(255),
+    schoolName VARCHAR(255),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
 	created_at TIMESTAMP NOT NULL DEFAULT NOW()
 ); 
