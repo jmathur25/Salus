@@ -105,6 +105,29 @@ def getLatLongAll():
 
     return jsonify(retList)
 
+@person.route('/getAllPeople')
+def getAllPeople():
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+    schoolName = request.args.get('schoolName')
+    query = """
+        Select id, phoneNumber, fullName, currentLatitude, currentLongitude 
+        From People 
+        Where People.usualSchool = %s %s and fullName is not NULL
+    """
+    cursor = cnx.cursor()
+    cursor.execute(query, ("UIUC", ""))
+    result = cursor.fetchall()
+
+    retList = []
+
+    for res in result:
+        retList.append( {'pid': res[0], 'phoneNumber': res[1], 'fullName': res[2], 'latitude': res[3], 'longitude': res[4]})
+
+    return jsonify(retList)
 
 
 @person.route('/updateLocationPerson', methods=['GET', 'POST'])
@@ -151,3 +174,22 @@ def getAdminPhoneNums():
     result = cursor.fetchall()
     return result
 
+
+@person.route('/sendPersonCheckin')
+def sendPersonCheckin():
+    phoneNumber = request.args.get('phoneNumber')
+    sid = get_file_contents('sid.txt')
+    authToken = get_file_contents('TwilioAuth.txt')
+    client = Client(
+        sid,
+        authToken
+    )
+
+    mes = client.messages.create(
+        to= str(phoneNumber),
+        from_ = '15087318632',
+        body = "This is a checkin text from an administrator asking you to send a message about your status"
+
+    )
+
+    return ('', 204)

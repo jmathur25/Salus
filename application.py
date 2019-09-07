@@ -6,6 +6,7 @@ from Person import person
 from MessageBoard import message_board
 from EmergencyStatus import emergency_status
 from GeoFeatures import geo_features
+from ProtocolPick import protocol_pick
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
 # my own files
@@ -19,6 +20,7 @@ application.register_blueprint(person, url_prefix="/person")
 application.register_blueprint(message_board, url_prefix="/message")
 application.register_blueprint(emergency_status, url_prefix="/emergency")
 application.register_blueprint(geo_features, url_prefix="/building")
+application.register_blueprint(protocol_pick, url_prefix="/protocolPicker")
 
 
 # useful function for turning request data into usable dictionaries

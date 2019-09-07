@@ -1,14 +1,20 @@
-from flask import jsonify, request
+from flask import jsonify, request, render_template, redirect
 import mysql.connector
 from flask import Blueprint
 from Person import get_file_contents
+from twilio.rest import Client
 
 emergency_status  = Blueprint('emergency_status', __name__)
 
 
 @emergency_status.route('/')
 def index():
-    return '/'
+
+    if isActiveEmergency:
+
+        return render_template('Dashboard.html')
+    else:
+        return render_template()
 
 
 def getQueryBuildingInit():
@@ -51,7 +57,7 @@ def getInitialBuildings():
 @emergency_status.route('/startEmergency', methods=['GET', 'POST'])
 def startEmergency():
     protocolID = request.args.get('protocolID')
-
+    sendEmergencyInfoToTwilioSubs(protocolID)
     host_name = get_file_contents("HostDB");
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
@@ -83,9 +89,61 @@ def startEmergency():
         cursor.execute(insertQuery, (res[0], res[1], "UIUC"))
         cnx.commit()
 
-    return jsonify(True)
+    return redirect("/emergency", code=302)
 
 
+
+def sendEmergencyInfoToTwilioSubs(protocolID):
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+
+    query = """
+            Select * 
+            From Protocols
+            Where id = %s %s;
+        """
+
+    cursor = cnx.cursor()
+    cursor.execute(query, (protocolID, ""))
+    result = cursor.fetchall()
+    print(result)
+    protocolName = result[0][2]
+    protocolDesc = result[0][3]
+    protocolType = result[0][4]
+
+
+    query = """
+            Select fullName, phoneNumber
+            From People
+            Where usualSchool = "UIUC" and phoneNumber is not Null
+        """
+
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+
+    sid = get_file_contents('sid.txt')
+    authToken = get_file_contents('TwilioAuth.txt')
+    client = Client(
+        sid,
+        authToken
+    )
+    for res in result:
+        print(res[1])
+        mes = client.messages.create(
+            to= str(res[1]),
+            from_ = '15087318632',
+            body = "IMPORTANT! There is an " + str(protocolType) + " We are following " + str(protocolName) + " which says to " + str(protocolDesc) + ""
+
+        )
+
+    pass
 
 
 @emergency_status.route('/endEmergency', methods=['GET', 'POST'])
