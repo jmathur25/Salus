@@ -105,3 +105,28 @@ def endEmergency():
     cnx.commit()
 
     return jsonify(True)
+
+
+
+
+@emergency_status.route('/addBuilding', methods=['GET', 'POST'])
+def addBuilding():
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    buildingId = request.args.get('buildingId')
+    status = request.args.get('status')
+
+
+    insertQuery = """
+                    Insert Into ProtocolStatusCurrent(buildingID, buildingStatus, schoolName) values(%s, %s, %s);
+                    """
+    cursor = cnx.cursor()
+    cursor.execute(insertQuery, (buildingId, status, "UIUC"))
+    cnx.commit()
+
+    return jsonify(True)
