@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Salus</title>
+  </head>
+  <body>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+    <script>
+      var refresh = function() {
+        console.log("hi");
+        $.ajax({
+          url: "../message/getAll",
+          cache: false,
+          success: success
+        });
+      }
+
+
+      var refreshPeople = function() {
+        console.log("hi");
+        $.ajax({
+          url: "../person/getAllPeople",
+          cache: false,
+          success: successPeople
+        });
+      }
+
+
+      // Replaces the contents of the field with your response and
+      // triggers refresh() after 1000ms.
+      var success = function(data) {
+        console.log(data)
+        $('#pills-home').empty();
+
+        $('#pills-home').append("<h4>Message Board</h4>")
+        for (i =  data.length - 1; i >= 0; i--) {
+
+          $('#pills-home').append(
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                        <div class='card-body'> \
+                          <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
+                          <h6 class='card-subtitle mb-2 text-muted'>" + data[i]["phoneNumber"]+ "</h6> \
+                          <p class='card-text'>"  +  data[i]["message"] + "</p> \
+                        </div> \
+                      </div>"
+
+                )
+        }
+        $(".field").html(data);
+        setTimeout(refresh, 5000);
+      }
+
+
+      var success = function(data) {
+        console.log(data)
+        $('#pills-home').empty();
+
+        $('#pills-home').append("<h4>Message Board</h4>")
+        for (i =  data.length - 1; i >= 0; i--) {
+
+          $('#pills-home').append(
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                        <div class='card-body'> \
+                          <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
+                          <h6 class='card-subtitle mb-2 text-muted' style='margin-top:10px;'>" + data[i]["phoneNumber"]+ "</h6> \
+                          <p class='card-text'>"  +  data[i]["message"] + "</p> \
+                        </div> \
+                      </div>"
+
+                )
+        }
+        $(".field").html(data);
+        setTimeout(refresh, 5000);
+      }
+
+      var successPeople = function(data) {
+        console.log(data)
+        $('#pills-profile').empty();
+
+        $('#pills-profile').append("<h4>Attendance</h4>")
+        for (i =  data.length - 1; i >= 0; i--) {
+
+          $('#pills-profile').append(
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                        <div class='card-body'> \
+                          <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
+                          <span class='badge badge-danger'> Danger </span> \
+                          <h6 class='card-subtitle mb-2 text-muted' style='margin-top:10px;'>" + data[i]["phoneNumber"]+ "</h6> \
+                          <p class='card-text'> <b>Latitude:</b> "  +  data[i]["latitude"] + "</p> \
+                          <p class='card-text'> <b>Longitude:</b> "  +  data[i]["longitude"] + "</p> \
+                          <a href='../person/sendPersonCheckin?phoneNumber=" + data[i]["phoneNumber"] +  "' class='btn btn-success' style='width:90%; margin-top: 5px;'>Send Checkin</a> \
+                        </div> \
+                      </div>"
+
+                )
+        }
+        $(".field").html(data);
+        setTimeout(refreshPeople, 5000);
+      }
+
+
+
+      // Starts processing when document is ready.
+      $(function() {
+        refresh();
+        refreshPeople();
+      });
+
+    </script>
+    <!-- <div class="container" style="width: 100%"> -->
+        <div class="row" style="background-color:blanchedalmond">
+          <div style="height:95vh; margin-left: 0px; margin-right: 40px; width: 75%; overflow: auto">
+              <center>
+                <h4 style="margin-top:15px;"> Emergency Dashboard </h4>
+                 <a href="#" class="btn btn-success " style="width:90%; margin-top: 5px;">Create a New Protocol</a>
+
+
+              </center>
+
+          </div>
+          <div style="background-color: aqua; margin-left: 0px; padding-left: 10px; width: 20%;">
+            <center>
+            <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+              <li class="nav-item" style="width:50%; margin-top:10px;">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Messages</a>
+              </li>
+              <li class="nav-item" style="width:50%; margin-top:10px;">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Students</a>
+              </li>
+            </ul>
+              </center>
+            <div class="tab-content" id="pills-tabContent" style="overflow: auto">
+              <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <center>
+
+
+                </center>
+              </div>
+              <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" style="overflow: auto">
+                <center>
+                  <h4>Attendance Board</h4>
+                </center>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      <!-- </div> -->
+
+
+
+
+  </body>
+</html>
+
+

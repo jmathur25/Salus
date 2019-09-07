@@ -4,3 +4,5 @@ PyYAML
 requests
 pillow
 matplotlib
+mysql.connector
+twilio
