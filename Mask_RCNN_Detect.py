@@ -59,26 +59,19 @@ class Mask_RCNN_Detect():
         self.id_to_geo = {}
 
 
-    # to_id should only be true while using the Flask app
     # id-ing will help the Mask_R_CNN keep track of each building and adjustments that need to be made
-    def detect_building(self, image, lat=None, long=None, zoom=None, to_id=False, rectanglify=True, to_fill=False):
-        print(type(image), image.shape)
+    def detect_building(self, image, lat=None, long=None, zoom=None, rectanglify=True, to_fill=False):
         assert(image.shape[-1] == 3) # must be size hxwx3
-
-        if to_id: plt.imsave('runtime/images/image_{}.png'.format(self.image_id), image)
 
         # to return
         masks = None
 
         # image needs to be split into pieces
         if image.shape[0] > 500 or image.shape[1] > 500:
-            masks = self._detect_with_split(image, to_id)
+            masks = self._detect_with_split(image)
         else:
-            print('detecting single')
-            masks = self._detect_single(image, to_id, rectanglify, to_fill)
+            masks = self._detect_single(image, rectanglify, to_fill)
         
-        print("masks shape: ", masks.shape)
-
         # just a regular image, not part of Flask setup
         if lat is None or long is None or zoom is None:
             masks = resize(masks, (image.shape[0], image.shape[1]), preserve_range=True) # masks can be reshaped, corners can't
@@ -100,7 +93,7 @@ class Mask_RCNN_Detect():
             # finds corners
             building_ids = np.unique(masks)
             building_ids = building_ids[building_ids != 0].astype(int).tolist()
-            for i, ids in enumerate(building_ids):
+            for ids in building_ids:
                 points = np.argwhere(masks == ids).tolist() # gets as coordinates
                 for j in range(len(points)):
                     x = points[j][1]
@@ -135,14 +128,13 @@ class Mask_RCNN_Detect():
         self.image_id += 1
         return to_return, message
 
-    def _detect_single(self, image, to_id=False, rectanglify=True, to_fill=True):
+    def _detect_single(self, image, rectanglify=True, to_fill=True):
         image = (resize(image, (320, 320), anti_aliasing=True) * 256).astype(np.uint8)
         detection = self.model.detect(
             [imageio.core.util.Array(image)])
         print('basic detection ran')
         masks = detection[0]['masks']
         masks = self._small_merge(masks)
-        if to_id: plt.imsave('runtime/masks/mask_{}.png'.format(self.image_id), (masks != 0).astype(bool))
             
         if rectanglify:
             print('in rectanglify')
@@ -166,12 +158,12 @@ class Mask_RCNN_Detect():
 
         return masks # not resized back
 
-    def _detect_with_split(self, image, to_id=False, rectanglify=True, to_fill=True):
+    def _detect_with_split(self, image, rectanglify=True, to_fill=True):
         # doesn't support rectanglify at the moment because points need to be tracked as well
 
         minimum = 280
         height, width = image.shape[0], image.shape[1]
-        # makes sure image needs to be split in the first
+        # makes sure image needs to be split in the first place
         assert height >= 2 * minimum or width >= 2 * minimum
         vert_num_splits = height // minimum
         horiz_num_splits = width // minimum
@@ -198,7 +190,7 @@ class Mask_RCNN_Detect():
                 detection = self.model.detect(
                     [imageio.core.util.Array(im)])
                 masks = detection[0]['masks']
-                if rectanglify: masks, points_guide = self._small_merge(masks, to_id)
+                if rectanglify: masks, points_guide = self._small_merge(masks)
                 else: masks = self._small_merge(masks)
                 masks = resize(masks, original_size, anti_aliasing=True, preserve_range=True)
                 # pastes result into the final mask
@@ -266,8 +258,6 @@ class Mask_RCNN_Detect():
         # helps rule out far points that don't belong to the main image
         std = np.std(distr)
         median = np.median(distr)
-        upper = (2*std + 1) * median
-        lower = (1 - 2*std) * median
         
         lookup = np.any([distr < (2*std + 1) * median, distr > (1 - 2*std) * median], axis=0)
         

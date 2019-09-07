@@ -1,3 +1,5 @@
 .vscode
 website_password.txt
 application_local.py
+ssh_server.txt
+*.ipynb

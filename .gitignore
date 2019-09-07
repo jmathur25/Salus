@@ -3,6 +3,7 @@ config.yml
 website_password.txt
 default_images/
 weights/
+ssh_server.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
