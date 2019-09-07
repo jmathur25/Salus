@@ -3,6 +3,8 @@ config.yml
 website_password.txt
 weights/
 ssh_server.txt
+HostDB
+query_mapbox.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

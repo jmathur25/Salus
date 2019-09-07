@@ -4,50 +4,58 @@
 import requests
 from PIL import Image
 from io import BytesIO
-from geolocation import *
 import os.path
 import numpy as np
-
+from mapbox import Maps
 import matplotlib
 matplotlib.use('PS') # for macOS
 import matplotlib.pyplot as plt
 
+import geolocation
+
 class ImageryDownloader(object):
 
-    def __init__(self, imagery_url, access_token=""):
+    def __init__(self, access_token):
         """Initializes the object with a Mapbox access token"""
-        self.imagery_url = imagery_url
-        self.access_token = access_token
+        self.maps = Maps(access_token=access_token)
+
+    def get_image_from_latlng_outline(self, corner1, corner2, zoom=18):
+        xtile1, ytile1 = geolocation.deg_to_tile(corner1[0], corner1[1], zoom)
+        xtile2, ytile2 = geolocation.deg_to_tile(corner2[0], corner2[1], zoom)
+
+        larger_x, smaller_x = xtile2, xtile1
+        if xtile1 > xtile2:
+            larger_x, smaller_x = xtile1, xtile2
+        larger_y, smaller_y = ytile2, ytile1
+        if ytile1 > ytile2:
+            larger_y, smaller_y = ytile1, ytile2
+
+        x_range = larger_x - smaller_x
+        y_range = larger_y - smaller_y
+
+        # image = Image.new("RGB", (256 * (x_range + 1), 256 * (y_range + 1)))
+        images = []
+        lat_lngs = []
+        for i_x, xt in enumerate(range(smaller_x, larger_x + 1)):
+            for i_y, yt in enumerate(range(smaller_y, larger_y + 1)):
+                try:
+                    tile_part = self.download_tile(xt, yt, zoom)
+                    # image.paste(tile_part, (256 * i_x, 256 * i_y))
+                    images.append(np.array(tile_part))
+                    lat_lngs.append(geolocation.tile_to_deg(xt, yt, 18))
+                except Exception as e:
+                    print(e)
+                    pass
+        return images, lat_lngs # image
     
     def download_tile(self, x, y, zoom):
         """Downloads a map tile as an image.
            Note that x and y refer to Slippy Map coordinates.
         """
-        
-        # Try to fetch the image from the cache first
-        img_fname = self.get_tile_filename(x, y, zoom)
-        # if os.path.isfile(img_fname):
-        #     return (plt.imread(img_fname) * 256).astype(np.uint8)
-        
-        # Download the image
-        url = self.imagery_url
-        url = url.replace("{x}", str(x))
-        url = url.replace("{y}", str(y))
-        url = url.replace("{zoom}", str(zoom))
-        url = url.replace("{access_key}", self.access_token)
-        
-        req = requests.get(url)
-        image = Image.open(BytesIO(req.content))
-        
-        # Save in the cache
-        if not os.path.exists(os.path.dirname(img_fname)):
-            try:
-                os.makedirs(os.path.dirname(img_fname))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-        image.save(img_fname)
-        
+        print(x, y, zoom)
+        response = self.maps.tile("mapbox.satellite", x, y, zoom)
+        image = Image.open(BytesIO(response.content))
+
         return image
 
     # def get_tile_filename(self, x, y, zoom):
