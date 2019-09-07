@@ -12,7 +12,7 @@ def index():
 
 
 
-@message_board.route('/send')
+@message_board.route('/send', methods=['GET', 'POST'])
 def sendMessage():
 
     host_name = get_file_contents("HostDB");

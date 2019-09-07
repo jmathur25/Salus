@@ -26,7 +26,7 @@ def index():
 
 
 
-@person.route('/createPerson')
+@person.route('/createPerson', methods=['GET', 'POST'])
 def createNewPerson():
     host_name = get_file_contents("HostDB");
 
@@ -106,7 +106,7 @@ def getLatLongAll():
 
 
 
-@person.route('/updateLocationPerson')
+@person.route('/updateLocationPerson', methods=['GET', 'POST'])
 def updateLocationPerson():
     host_name = get_file_contents("HostDB");
 
