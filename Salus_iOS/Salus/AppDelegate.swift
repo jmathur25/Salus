@@ -7,15 +7,30 @@
 //
 
 import UIKit
+import CoreLocation
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
-
+  let locationManager = CLLocationManager()
+  let center = UNUserNotificationCenter.current()
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    
     // Override point for customization after application launch.
+    locationManager.requestAlwaysAuthorization()
+    center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+    }
+        
+    locationManager.distanceFilter = 10
+    locationManager.allowsBackgroundLocationUpdates = true
+    locationManager.startUpdatingLocation()
+
+    locationManager.startMonitoringVisits()
+    locationManager.delegate = self
+    
     return true
   }
 
@@ -44,3 +59,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate: CLLocationManagerDelegate {
+  func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+    // create CLLocation from the coordinates of CLVisit
+    let clLocation = CLLocation(latitude: visit.coordinate.latitude, longitude: visit.coordinate.longitude)
+    
+    // Get location description
+  }
+  
+  func newVisitReceived(_ visit: CLVisit, description: String) {
+//    let location = CLLocation(visit: visit, descriptionString: description)
+    
+    // Save location to disk
+  }
+}
