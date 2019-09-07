@@ -177,3 +177,29 @@ def changeStatus():
     cnx.commit()
 
     return jsonify(True)
+
+
+
+@emergency_status.route('/isActiveEmergency', methods=['GET'])
+def isActiveEmergency():
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    query = """
+                    Select * from ProtocolStatusCurrent Where schoolName = %s %s;
+                    """
+    cursor = cnx.cursor()
+    cursor.execute(query, ("UIUC", ""))
+    result = cursor.fetchall()
+
+    print(len(result))
+    if len(result) > 0:
+        return jsonify(True)
+
+
+
+    return jsonify(False)
