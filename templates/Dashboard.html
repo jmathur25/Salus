@@ -31,17 +31,28 @@
         });
       }
 
+
+      var refreshPeople = function() {
+        console.log("hi");
+        $.ajax({
+          url: "../person/getAllPeople",
+          cache: false,
+          success: successPeople
+        });
+      }
+
+
       // Replaces the contents of the field with your response and
       // triggers refresh() after 1000ms.
       var success = function(data) {
         console.log(data)
         $('#pills-home').empty();
 
-
+        $('#pills-home').append("<h4>Message Board</h4>")
         for (i =  data.length - 1; i >= 0; i--) {
 
           $('#pills-home').append(
-                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; '> \
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
                         <div class='card-body'> \
                           <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
                           <h6 class='card-subtitle mb-2 text-muted'>" + data[i]["phoneNumber"]+ "</h6> \
@@ -55,9 +66,60 @@
         setTimeout(refresh, 5000);
       }
 
+
+      var success = function(data) {
+        console.log(data)
+        $('#pills-home').empty();
+
+        $('#pills-home').append("<h4>Message Board</h4>")
+        for (i =  data.length - 1; i >= 0; i--) {
+
+          $('#pills-home').append(
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                        <div class='card-body'> \
+                          <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
+                          <h6 class='card-subtitle mb-2 text-muted' style='margin-top:10px;'>" + data[i]["phoneNumber"]+ "</h6> \
+                          <p class='card-text'>"  +  data[i]["message"] + "</p> \
+                        </div> \
+                      </div>"
+
+                )
+        }
+        $(".field").html(data);
+        setTimeout(refresh, 5000);
+      }
+
+      var successPeople = function(data) {
+        console.log(data)
+        $('#pills-profile').empty();
+
+        $('#pills-profile').append("<h4>Attendance</h4>")
+        for (i =  data.length - 1; i >= 0; i--) {
+
+          $('#pills-profile').append(
+                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                        <div class='card-body'> \
+                          <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
+                          <span class='badge badge-danger'> Danger </span> \
+                          <h6 class='card-subtitle mb-2 text-muted' style='margin-top:10px;'>" + data[i]["phoneNumber"]+ "</h6> \
+                          <p class='card-text'> <b>Latitude:</b> "  +  data[i]["latitude"] + "</p> \
+                          <p class='card-text'> <b>Longitude:</b> "  +  data[i]["longitude"] + "</p> \
+                          <a href='../emergency/startEmergency?protocolID=1' class='btn btn-success' style='width:90%; margin-top: 5px;'>Send Checkin</a> \
+                        </div> \
+                      </div>"
+
+                )
+        }
+        $(".field").html(data);
+        setTimeout(refreshPeople, 5000);
+      }
+
+
+
       // Starts processing when document is ready.
       $(function() {
         refresh();
+        refreshPeople();
       });
 
     </script>
@@ -86,7 +148,8 @@
             <div class="tab-content" id="pills-tabContent">
               <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                 <center>
-                  <h4>Message Board</h4>
+
+
                 </center>
               </div>
               <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
