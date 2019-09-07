@@ -49,6 +49,24 @@ def home(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
+@application.route('/setup', methods=['POST'])
+def setup():
+    # from .setup import ...
+    return "success"
+
+@application.route('/setup/corners', methods=['POST'])
+def identify_region():
+    result = request.form
+    info = result_to_dict(result)
+    top_left, top_right, bottom_right, bottom_left = info['top_left'], info['top_right'], info['bottom_right'], info['bottom_left']
+
+    imd = get_imd()
+    image = imd.get_image_from_corners(top_left, top_right, bottom_right, bottom_left)
+
+    # SETUP MRCNN STUFF
+    # zoom should always be 18
+    buildings_as_rects = detect_buildings(image, top_left, zoom=18)
+
 # run the app.
 if __name__ == "__main__":
     config = config_reader.get_config()

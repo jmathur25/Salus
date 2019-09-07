@@ -1,7 +1,8 @@
 # mine
 config.yml
 website_password.txt
-Mask_RCNN_Detect.py
+default_images/
+weights/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

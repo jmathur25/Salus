@@ -45,6 +45,78 @@
             id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
         }).addTo(map);
 
+        var setupMode = 'false';
+
+        // Add merge control
+        L.Control.SetupButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                text: 'S',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                title: 'Setup?'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.setupButton = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                var color = "#FFFFFF";
+                if (setupMode == 'false') {
+                    setupMode = 'true';
+                    color = "#BBFFBB";
+                } else {
+                    setupMode = 'false';
+                }
+                this.setupButton.style.backgroundColor = color;
+                
+                // send post reques saying "Setup" was clicked
+                var params = "";
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "./setup", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                // Wait for a response
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log("got return"); // here you should enable setup scripts
+                    }
+                }
+                xhr.send(params);
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Merge button constructor
+        L.Control.setupButton = function(opts) {
+            return new L.Control.SetupButton(opts);
+        }
+
+        // Add the merge button to the map
+        var setupButton = L.Control.setupButton({ position: "topleft" }).addTo(map);
+
     </script>
   </body>
 
