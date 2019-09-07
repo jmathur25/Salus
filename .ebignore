@@ -1,3 +1,9 @@
 .vscode
 website_password.txt
 application_local.py
+
+default_images
+mrcnn
+weights
+
+*.ipynb
