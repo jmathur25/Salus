@@ -1,15 +1,24 @@
 # mine
 config.yml
 website_password.txt
+
 weights/
 ssh_server.txt
 HostDB
 query_mapbox.ipynb
+HostDB
+Mask_RCNN_Detect.py
+*.ipynb
+weights/
+sid.txt
+TwilioAuth.txt
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+ssh_server.txt
 
 # C extensions
 *.so
