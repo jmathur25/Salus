@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import WebKit
 import CoreLocation
 import CoreMotion
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class ViewController: UIViewController, WKUIDelegate, UITextFieldDelegate {
   
   let locationManager = CLLocationManager()
   let altimeter = CMAltimeter()
@@ -18,60 +19,60 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   var relativeAltitude = 0.0
   var pressure = 0.0
   
+  // MARK: Outlets
+  @IBOutlet weak var webview: WKWebView!
+  @IBOutlet weak var messageTextField: UITextField!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view.
     
-//    getLocation()
-//    
-//    if CMAltimeter.isRelativeAltitudeAvailable() {
-//      altimeter.startRelativeAltitudeUpdates(to: OperationQueue.main) { (data, error) in
-//        self.relativeAltitude = data?.relativeAltitude as! Double
-//        self.pressure = data?.pressure as! Double
-//        
-//        print("relative altitude: ", self.relativeAltitude)
-//        print("pressure: ", self.pressure)
-//      }
-//    }
-  }
-  
-  // MARK: Actions
-  @IBAction func markSafe(_ sender: UIButton) {
-    //  do stuff
-  }
-  
-  @IBAction func markDanger(_ sender: UIButton) {
-    // do stuff
-  }
-  
-  func calculateFloor() {
+    messageTextField.delegate = self
     
-  }
-  
-  func getLocation() {
-    // 1
-    let status = CLLocationManager.authorizationStatus()
-    
-    switch status {
-      case .notDetermined:
-        locationManager.requestAlwaysAuthorization()
-        return
-      case .denied, .restricted:
-        let alert = UIAlertController(title: "Location Services disabled", message: "Please enable Location Services in Settings", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alert.addAction(okAction)
-        
-        present(alert, animated: true, completion: nil)
-        return
-      case .authorizedAlways, .authorizedWhenInUse:
-        break
-      
-    }
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+
     
     locationManager.delegate = self
-    locationManager.startUpdatingLocation()
+    
+    let location = locationManager.location
+    
+    if location != nil {
+      let latitude = location?.coordinate.latitude as! Double
+      let longitude = location?.coordinate.longitude as! Double
+      
+      let urlString = Constants.siteUrl + String(latitude) + "/" + String(longitude)
+      // Do any additional setup after loading the view.
+      let myURL = URL(string:urlString)
+      let myRequest = URLRequest(url: myURL!)
+      webview.load(myRequest)
+    }
   }
   
+  @objc func keyboardWillShow(notification: NSNotification) {
+    if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+      if self.view.frame.origin.y == 0 {
+        self.view.frame.origin.y -= keyboardSize.height
+      }
+    }
+  }
+  
+  @objc func keyboardWillHide(notification: NSNotification) {
+    if self.view.frame.origin.y != 0 {
+      self.view.frame.origin.y = 0
+    }
+  }
+  
+  
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    print("here")
+    textField.resignFirstResponder()
+    return true
+  }
+  
+}
+
+extension ViewController: CLLocationManagerDelegate {
+  // send location to database
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     if let currentLocation = locations.last {
       print("Current location: \(currentLocation)")
@@ -81,6 +82,5 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
     print(error)
   }
-
 }
 

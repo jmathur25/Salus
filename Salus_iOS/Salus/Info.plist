@@ -2,6 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+<!--    <key>NSAllowsArbitraryLoadsInWebContent</key>-->
+<!--    <false/>-->
+<!--    <key>NSExceptionDomains</key>-->
+<!--    <dict>-->
+<!--      <key>http://salus.k75fgnsppp.us-east-2.elasticbeanstalk.com</key>-->
+<!--      <dict>-->
+<!--        <key>NSExceptionAllowsInsecureHTTPLoads</key>-->
+<!--        <true/>-->
+<!--        <key>NSIncludesSubdomains</key>-->
+<!--        <true/>-->
+<!--      </dict>-->
+<!--    </dict>-->
+  </dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -26,6 +43,7 @@
 	<string>Needs location tracking in order to account for user safety in emergency situations.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>location</string>
 		<string>remote-notification</string>
 	</array>
