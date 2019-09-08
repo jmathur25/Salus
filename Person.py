@@ -193,3 +193,30 @@ def sendPersonCheckin():
     )
 
     return ('', 204)
+
+
+@person.route('/getPeopleByTileGrouping')
+def getPeopleByTileGrouping():
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    buildingId = request.args.get('buildingId')
+    query = """
+                Select People.xTile, People.yTile, People.id, People.currentLatitude, People.currentLongitude 
+                From (Select distinct buildingID, buildingStatus, GeoFeatures.schoolName, xTile, yTile, structureType  
+                        from ProtocolStatusCurrent  
+                            Join GeoFeatures  
+                            on ProtocolStatusCurrent.buildingID = GeoFeatures.idBuilding  
+                            and ProtocolStatusCurrent.schoolName = GeoFeatures.schoolName ) as BuildingTileInformation, 
+                    People 
+                Where People.xTile = BuildingTileInformation.xTile and People.yTile = BuildingTileInformation.yTile 
+                Order By People.xTile, People.yTile; 
+                    """
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    return jsonify(result)
