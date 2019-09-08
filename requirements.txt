@@ -11,3 +11,4 @@ opencv-python==4.1.0.25
 Keras==2.2.4
 imageio==2.5.0
 scikit-image==0.14.2
+mapbox
