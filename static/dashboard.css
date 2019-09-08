@@ -2,6 +2,22 @@ body {
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
+#emergency-over {
+    z-index: 10;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#emergency-over-button {
+    background-color: red;
+    width: 70px;
+    height: 70px;
+    margin: 10px;
+    text-align: center;
+    font-size: 15px;
+}
+
 #map {
     left: 0;
     top: 0;

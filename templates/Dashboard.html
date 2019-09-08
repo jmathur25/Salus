@@ -146,6 +146,9 @@
           <div id="wrapper-of-wrapper">
               <div id="wrapper">
               <div id="map"></div>
+              <div id="emergency-over">
+                <button class="btn btn-warning" id="emergency-over-button" onclick="endEmergency()"> End Emergency</button>
+              </div>
 
               <script>
                 // Create map
@@ -358,6 +361,15 @@
                   // Add the merge button to the map
                   var deleteBuildings = L.Control.deleteBuildings({ position: "topleft" }).addTo(map);
                   deleteBuildings.disable();
+                  
+                  function endEmergency() {
+                    console.log("here")
+                    const endpointStr = '/emergency/endEmergency';
+                    $.post(endpointStr, function(data, status){
+                      console.log("Data: " + data + "\nStatus: " + status);
+                    });
+                  }
+
               </script>
             </div>
           </div>
@@ -399,7 +411,6 @@
             <div class="tab-content" id="pills-tabContent" style="overflow: auto">
               <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                 <center>
-
 
                 </center>
               </div>
