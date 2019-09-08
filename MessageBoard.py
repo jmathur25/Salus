@@ -79,3 +79,41 @@ def sendMessage():
     except Exception as e:
         print(e)
         return jsonify({"passed": False, "error": str(e)})
+
+
+@message_board.route('/adminSend/<data>', methods=['GET', 'POST'])
+def adminSend(data):
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    textData = data
+    query = """
+                Select fullName, phoneNumber
+                From People
+                Where usualSchool = "UIUC" and phoneNumber is not Null
+            """
+
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    sid = get_file_contents('sid.txt')
+    authToken = get_file_contents('TwilioAuth.txt')
+    client = Client(
+        sid,
+        authToken
+    )
+    print(textData)
+    for res in result:
+        print(res[1])
+        mes = client.messages.create(
+            to=str(res[1]),
+            from_='15087318632',
+            body=str(textData)
+
+        )
+
+    return "100"

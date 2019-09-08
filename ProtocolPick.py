@@ -78,6 +78,7 @@ def setup_new_protocol():
     context['zones'] = all_buildings
     return render_template('Protocols.html', protocols=getProtocols(), **context)
 
+
 @protocol_pick.route('/get_xtile_ytile', methods=['POST'])
 def send_new_protocol():
     result = request.form
