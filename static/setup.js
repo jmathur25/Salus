@@ -21,6 +21,44 @@ window.onload = function() {
         fadeOutEffect();
         showModal();
     };
+
+    $(function() {
+        function processData(allText) {
+          var record_num = 2; // or however many elements there are in each row
+          var allTextLines = allText.split(/\r\n|\n/);
+          var lines = [];
+          var headings = allTextLines.shift().split(',');
+          while (allTextLines.length > 0) {
+            var tobj = {}, entry;
+
+            entry = allTextLines.shift().split(',');
+            tobj['label'] = entry[0];
+            tobj['value'] = [entry[1], entry[2]];
+            lines.push(tobj);
+          }
+
+          return lines;
+        }
+      
+        // Storage for lists of CSV Data
+        var lists = [];
+        // Get the CSV Content
+        $.get("static/university_dataset.csv", function(data) {
+          lists = processData(data);
+        });
+
+        console.log(lists);
+      
+        $("#schoolInput").autocomplete({
+          minLength: 3,
+          source: lists,
+          select: function(event, ui) {
+            console.log(ui)
+            $("#schoolInput").val(ui.item.label);
+            return true;
+          }
+        });
+      });
 };
 
 function fadeOutEffect() {
@@ -46,3 +84,7 @@ function showModal() {
 function enableMap() {
     document.getElementById("overlay").style.display = "none";
 };
+
+function dismissOnboarding() {
+    document.getElementById("onboarding-div").style.display = "none";
+}

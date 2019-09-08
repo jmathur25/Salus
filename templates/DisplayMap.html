@@ -9,12 +9,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" type='text/css'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
   <script type="text/javascript" src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='setup.js') }}"></script>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
     crossorigin="anonymous"></script>
@@ -32,6 +31,30 @@
 
   <div id="wrapper">
     <div id="map"></div>
+
+    <div id="onboarding-div">
+        <div id="onboarding-title">Welcome to Salus!</div>
+        <div id="onboarding-subtitle">Campus safety system</div>
+        <div id="onboarding-graphics">
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/campus.png') }}">
+                <div class="onboarding-text">Find your campus</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/mapbuildings.png') }}">
+                <div class="onboarding-text">Map important buildings</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/safety.png') }}">
+                <div class="onboarding-text">Plan and execute safety protocols</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/accountability.png') }}">
+                <div class="onboarding-text">Maintain accountability during emergencies</div>
+            </div>
+        </div>
+        <button id="letsgo" onclick="dismissOnboarding()">Let's go!</button>
+    </div>
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
