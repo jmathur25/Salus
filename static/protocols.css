@@ -1,0 +1,22 @@
+.row {
+    background-color: #83B3E4;
+}
+
+#sidebar {
+    height:100vh;
+    margin-left: 0px;
+    padding-left: 30px;
+    width: 25%;
+    overflow: auto;
+}
+
+#map {
+    right: 0;
+    width: 100%;
+}
+
+.card {
+    width: 90%;
+    margin-top: 10px;
+    margin-left: 5px; 
+}

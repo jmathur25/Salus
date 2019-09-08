@@ -4,10 +4,10 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='protocols.css') }}">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
     <title>Salus - Protocols</title>
 
      <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -42,8 +42,8 @@
 
 
     <!-- <div class="container" style="width: 100%"> -->
-        <div class="row" style="background-color:blanchedalmond">
-          <div style="height:95vh; margin-left: 0px; margin-left:3%; width: 20%; overflow: auto">
+        <div class="row">
+          <div id="sidebar">
                 <h4 style="margin-top:15px; "> Protocols </h4>
                  <a href="/protocolPicker/create_new_protocol" class="btn btn-success " style="width:90%; margin-top: 5px;">Create a New Protocol</a>
 
@@ -56,15 +56,14 @@
                           <p class="card-text">{{ protocol.initialInstruction }}</p>
                           <a href="" class="btn btn-primary" style="width: 45%">Preview</a>
                           <a href="#" class="btn btn-primary" style="width: 45%">Edit</a>
-                          </ br>
                           <a href="../emergency/startEmergency?protocolID={{protocol.id}}" class="btn btn-danger" style="width:90%; margin-top: 5px;">Start Emergency</a>
                         </div>
                 </div>
 
                 {% endfor %}
-
           </div>
-          <div style="background-color: aqua; margin-left: 0px; padding-left: 10px; width: 75%;">
+          
+          <div style="background-color: #83B3E4; margin-left: 0px; padding-left: 10px; width: 75%;">
           <div id="wrapper">
             <div id="map"></div>
           </div>
