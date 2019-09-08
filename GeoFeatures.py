@@ -31,4 +31,23 @@ def getSingleBuilding():
 
     return jsonify(retList)
 
-# @geo_features.route('/create')
+def getAllBuildings():
+    host_name = get_file_contents("HostDB")
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    allItems = []
+
+    query = """
+                        Select idBuilding, latitude, longitude, xTile, yTile from GeoFeatures where schoolName = "UIUC" Order By created_at;
+                        """
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    retList = []
+    for res in result:
+        retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2], "xTile": res[3], "yTile": res[4]})
+
+    return retList

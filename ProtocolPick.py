@@ -8,6 +8,9 @@ import imagery
 from twilio.rest import Client
 import config_reader
 
+import GeoFeatures
+import config_reader
+import geolocation
 
 protocol_pick  = Blueprint('protocol_pick', __name__)
 
@@ -33,6 +36,7 @@ def getProtocols():
     return retList
 
 
+
 @protocol_pick.route('/')
 def index(zoom=None, lat=None, lng=None):
 
@@ -55,11 +59,38 @@ def index(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return index(zoom, lat, lng)
 
-@protocol_pick.route('/setup', methods=['POST'])
-def setup():
-    # from .setup import ...
-    return "success"
+@protocol_pick.route('/create_new_protocol', methods=['GET', 'POST'])
+def setup_new_protocol():
+    # form: list of dictionaries containing building id, points, etc as guide
+    all_buildings = GeoFeatures.getAllBuildings()
+    config = config_reader.get_config()
+    lat = config['start_lat']
+    lng = config['start_lng']
+    zoom = config['start_zoom']
+    access_key = config['accessKey']
 
+
+    context = {}
+    context['lat'] = lat
+    context['lng'] = lng
+    context['zoom'] = zoom
+    context['access_key'] = access_key
+    context['zones'] = all_buildings
+    return render_template('Protocols.html', protocols=getProtocols(), **context)
+
+@protocol_pick.route('/get_xtile_ytile', methods=['POST'])
+def send_new_protocol():
+    result = request.form
+    info = result_to_dict(result)
+    lat = info['lat']
+    lng = info['lng']
+    zoom = info['zoom']
+    xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
+    json_post = {
+        'xTile': xtile,
+        'yTile': ytile
+    }
+    return json_post
 
 @protocol_pick.route('/setup/corners', methods=['POST'])
 def identify_region():
