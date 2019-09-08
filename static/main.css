@@ -105,6 +105,45 @@ div#overlay {
   margin-right: 10px;
 }
 
+#onboarding-div-map {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  z-index: 102;
+  left: 0;
+  top: 0;
+  width: 80%;
+  height: 85%;
+  margin-top: 5%;
+  margin-left: 10%;
+  position: absolute;
+  background-color: white;
+  text-align: center;
+  display: none;
+}
+
+#onboarding-div-map-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#onboarding-div-map img {
+  max-width:90%;
+  max-height:90%;
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+.letsgo {
+  font-size: 20px;
+  margin-top: 20px;
+  background-color: #83B3E4;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+}
+
 .navbar {
   background-color: rgb(95, 143, 190);
 }

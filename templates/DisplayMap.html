@@ -53,7 +53,14 @@
                 <div class="onboarding-text">Maintain accountability during emergencies</div>
             </div>
         </div>
-        <button id="letsgo" onclick="dismissOnboarding()">Let's go!</button>
+        <button class="letsgo" onclick="dismissOnboarding()">Let's go!</button>
+    </div>
+
+    <div id="onboarding-div-map">
+        <div id="onboarding-div-map-wrapper">
+            <img src="{{ url_for('static', filename='images/map_directions.png') }}">
+            <button class="letsgo" onclick="dismissMapOnboarding()">Continue</button>
+        </div>
     </div>
 
     <!-- Modal -->
