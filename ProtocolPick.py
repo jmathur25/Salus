@@ -62,6 +62,7 @@ def addNewProtocol():
                                   database='innodb')
 
     protocolName = request.args.get('protocolName')
+    print("PROTOCOLNAME")
     type = request.args.get('type')
     initialInstruction = request.args.get('initialInstruction')
 
