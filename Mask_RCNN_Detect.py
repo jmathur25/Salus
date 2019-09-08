@@ -18,7 +18,7 @@ from skimage.transform import resize as resize
 warnings.filterwarnings('ignore')
 
 # gets a minimum bounding rectangle
-from Polygonify import Polygonify
+from detectors.algorithms import Polygonify
 import cv2
 
 class InferenceConfig(Config):
