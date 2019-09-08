@@ -8,13 +8,16 @@ import imagery
 from twilio.rest import Client
 import config_reader
 
+import GeoFeatures
+import config_reader
+import geolocation
 
 protocol_pick  = Blueprint('protocol_pick', __name__)
 
 
 @protocol_pick.route('/getProtocols')
 def getProtocols():
-    host_name = get_file_contents("HostDB");
+    host_name = get_file_contents("HostDB")
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
                                   host=host_name,
@@ -33,6 +36,7 @@ def getProtocols():
     return retList
 
 
+
 @protocol_pick.route('/')
 def index(zoom=None, lat=None, lng=None):
 
@@ -49,79 +53,45 @@ def index(zoom=None, lat=None, lng=None):
     context['zoom'] = zoom
     context['access_key'] = access_key
 
+    return render_template('Protocols.html', protocols=getProtocols(), **context)
 
+@protocol_pick.route('/<zoom>/<lat>/<lng>', methods=['GET'])
+def move_to_new_lat_long(zoom, lat, lng):
+    return index(zoom, lat, lng)
+
+@protocol_pick.route('/create_new_protocol', methods=['GET', 'POST'])
+def setup_new_protocol():
+    # form: list of dictionaries containing building id, points, etc as guide
+    all_buildings = GeoFeatures.getAllBuildings()
+    config = config_reader.get_config()
+    lat = config['start_lat']
+    lng = config['start_lng']
+    zoom = config['start_zoom']
+    access_key = config['accessKey']
+
+
+    context = {}
+    context['lat'] = lat
+    context['lng'] = lng
+    context['zoom'] = zoom
+    context['access_key'] = access_key
+    context['zones'] = all_buildings
     return render_template('Protocols.html', protocols=getProtocols(), **context)
 
 
-@protocol_pick.route('/addNewProtocol',  methods=['GET', 'POST'])
-def addNewProtocol():
-    host_name = get_file_contents("HostDB");
-
-    cnx = mysql.connector.connect(user='root', password='Shatpass',
-                                  host=host_name,
-                                  database='innodb')
-
-    protocolName = request.args.get('protocolName')
-    print("PROTOCOLNAME")
-    type = request.args.get('type')
-    initialInstruction = request.args.get('initialInstruction')
-
-    mapOfBuildingIds = json.loads(request.args.get('mapOfBuildingIds'))
-    print(mapOfBuildingIds)
-
-    insertQuery = """   
-                    Insert Into Protocols(schoolName, protocolName, type, initialInstruction) 
-                        values ("UIUC", %s, %s, %s)
-                        """
-    cursor = cnx.cursor()
-    cursor.execute(insertQuery, (protocolName, type, initialInstruction))
-    cnx.commit()
-
-    query = """
-        Select id from Protocols Where schoolName = %s AND protocolName = %s
-    """
-    cursor = cnx.cursor()
-    cursor.execute(query, ("UIUC", protocolName))
-    result = cursor.fetchall()
-
-    print("ID of protocol ", result[0][0])
-
-    updateTables(result[0][0], mapOfBuildingIds)
-
-    return jsonify(True)
-
-
-
-def updateTables(protocolID, mapOfBuildingIds):
-
-    host_name = get_file_contents("HostDB");
-
-    cnx = mysql.connector.connect(user='root', password='Shatpass',
-                                  host=host_name,
-                                  database='innodb')
-
-    for key in mapOfBuildingIds.keys():
-        status = mapOfBuildingIds[key]
-
-        insertQuery = """ Insert Into ProtocolToBuilding(protocolID, buildingID) values (%s, %s) """
-        protocolStatusInitial = """ Insert Into ProtocolStatusInitial(protocolName, buildingID, buildingStatus) values (%s, %s, %s) """
-        cursor = cnx.cursor()
-
-        cursor.execute(insertQuery, (protocolID, key))
-        cursor.execute(protocolStatusInitial, (protocolID, key, status))
-
-        cnx.commit()
-
-
-
-
-
-
-@protocol_pick.route('/setup', methods=['POST'])
-def setup():
-    # from .setup import ...
-    return "success"
-
+@protocol_pick.route('/get_xtile_ytile', methods=['POST'])
+def send_new_protocol():
+    result = request.form
+    info = result_to_dict(result)
+    lat = info['lat']
+    lng = info['lng']
+    zoom = info['zoom']
+    xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
+    json_post = {
+        'xTile': xtile,
+        'yTile': ytile
+    }
+    return json_post
 
 @protocol_pick.route('/setup/corners', methods=['POST'])
 def identify_region():

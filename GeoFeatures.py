@@ -74,11 +74,6 @@ def getAllBuildings():
     retList = []
     for res in result:
         retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2], "xTile": res[3], "yTile": res[4]})
+        
+    return retList
 
-    return jsonify(retList)
-
-
-
-
-
-# @geo_features.route('/create')
