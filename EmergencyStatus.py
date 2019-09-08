@@ -330,6 +330,31 @@ def isActiveEmergency():
     return False
 
 
+@emergency_status.route('/isActiveEmergencyiOS', methods=['GET'])
+def isActiveEmergency():
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    query = """
+                    Select * from ProtocolStatusCurrent Where schoolName = %s %s;
+                    """
+    cursor = cnx.cursor()
+    cursor.execute(query, ("UIUC", ""))
+    result = cursor.fetchall()
+
+    print(len(result))
+    if len(result) > 0:
+        return jsonify(True)
+
+
+
+    return jsonify(False)
+
+
 
 @emergency_status.route('/setup', methods=['POST'])
 def setup():
