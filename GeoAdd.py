@@ -73,5 +73,3 @@ def addAllGeo(zoneTypes, zonePoints, tileCoords):
     return idSet;
 
 
-
-print(addAllGeo(zone, point, tile))

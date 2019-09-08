@@ -20,15 +20,39 @@ def getSingleBuilding():
 
     buildingId = request.args.get('buildingId')
     query = """
-                    Select idBuilding, latitude, longitude from GeoFeatures where idBuilding = %s %s Order By created_at;
+                    Select idBuilding, latitude, longitude, xTile, yTile from GeoFeatures where idBuilding = %s %s Order By created_at;
                     """
     cursor = cnx.cursor()
     cursor.execute(query, (buildingId, ""))
     result = cursor.fetchall()
     retList = []
     for res in result:
-        retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2]})
+        retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2], "xTile": res[3], "yTile": res[4]})
 
     return jsonify(retList)
+
+
+
+def getAllBuildings(buildingIdList):
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    allItems = []
+    for bid in buildingIdList:
+        buildingId = bid
+        query = """
+                        Select idBuilding, latitude, longitude, xTile, yTile from GeoFeatures where idBuilding = %s %s Order By created_at;
+                        """
+        cursor = cnx.cursor()
+        cursor.execute(query, (buildingId, ""))
+        result = cursor.fetchall()
+        retList = []
+        for res in result:
+            retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2], "xTile": res[3], "yTile": res[4]})
+        allItems.append(retList)
+    return jsonify(allItems)
 
 # @geo_features.route('/create')
