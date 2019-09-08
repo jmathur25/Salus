@@ -8,8 +8,20 @@
 
 import Foundation
 
-enum EmergencyType{
+enum EmergencyType : CustomStringConvertible {
   case Fire, ActiveShooter, Tornado, Hurricane, BombThreat, None
+  
+  var description : String {
+    switch self {
+    // Use Internationalization, as appropriate.
+    case .Fire: return "Fire"
+    case .ActiveShooter: return "Active Shooter"
+    case .Tornado: return "Tornado"
+    case .Hurricane: return "Hurricane"
+    case .BombThreat: return "Bomb Threat"
+    case .None: return "No Emergency"
+    }
+  }
 }
 
 class Emergency {

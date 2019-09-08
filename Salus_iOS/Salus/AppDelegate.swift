@@ -28,8 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Set minimum fetch interval
     UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
     
-//    if !UserDefaults.standard.bool(forKey: "didSee") {
-    if true {
+    if !UserDefaults.standard.bool(forKey: "didSee") {
       UserDefaults.standard.set(true, forKey: "didSee")
       print("here")
       

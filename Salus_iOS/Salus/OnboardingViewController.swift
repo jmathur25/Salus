@@ -20,7 +20,6 @@ class OnboardingViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
       
       let screenBounds = self.view.bounds
-      
       self.nameTextField.delegate = self
       self.schoolTextField.delegate = self
       self.phoneNumberTextField.delegate = self
@@ -57,6 +56,9 @@ class OnboardingViewController: UIViewController, UITextFieldDelegate {
     */
   
   func addPersonToDb(uuid: String, school: String, name: String, phoneNumber: String) {
+    // Save school to user data
+    UserDefaults.standard.set(school, forKey: "school")
+    
     //create the url with URL
     let url = URL(string: Constants.siteUrl + "person/createPerson?uuid=\(uuid)&school=\(school)&name=\(phoneNumber)")!
     
@@ -77,7 +79,7 @@ class OnboardingViewController: UIViewController, UITextFieldDelegate {
         do {
           //create json object from data
           if let json = try JSONSerialization.jsonObject(with: data!, options: .mutableContainers) as? [[Any]] {
-            UserDefaults.standard.set("pid", forKey: "\(json[0][0])")
+            UserDefaults.standard.set("\(json[0][0])", forKey: "pid")
           }
         } catch let error {
           print(error.localizedDescription)
@@ -92,5 +94,9 @@ class OnboardingViewController: UIViewController, UITextFieldDelegate {
   {
     textField.resignFirstResponder()
     return true
+  }
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    view.endEditing(true)
   }
 }
