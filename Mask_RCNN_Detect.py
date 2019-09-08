@@ -82,7 +82,10 @@ class Mask_RCNN_Detect():
             self.geo_to_point[(xtile+1,ytile+1)] = {}
         relevant = self.geo_to_point[(xtile+1,ytile+1)]
 
-
+        print(lat)
+        print(long)
+        print(xtile)
+        print(ytile)
         if rectanglify:
             # finds corners
             building_ids = np.unique(masks)

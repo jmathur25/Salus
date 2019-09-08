@@ -2,7 +2,7 @@ from flask import jsonify, request
 import mysql.connector
 from flask import Blueprint
 from twilio.rest import Client
-
+from geolocation import *
 person  = Blueprint('person', __name__)
 
 def get_file_contents(filename):
@@ -140,11 +140,20 @@ def updateLocationPerson():
     pid = request.args.get('pid')
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
+    tupleTile = deg_to_tile(float(latitude), float(longitude), 18 )
+    geolocationX = tupleTile[0]
+    geolocationY = tupleTile[1]
+
     queryLatitude = """ Update People Set People.currentLatitude = %s Where People.id = %s;"""
     queryLongitude = """ Update People Set People.currentLongitude = %s Where People.id = %s;"""
+    queryTileX = """ Update People Set People.xTile = %s Where People.id = %s;"""
+    queryTileY = """ Update People Set People.yTile = %s Where People.id = %s;"""
+
     cursor = cnx.cursor()
     cursor.execute(queryLatitude, (latitude, pid))
     cursor.execute(queryLongitude, (longitude, pid))
+    cursor.execute(queryTileX, (geolocationX, pid))
+    cursor.execute(queryTileY, (geolocationY, pid))
     cnx.commit()
 
     return "0"

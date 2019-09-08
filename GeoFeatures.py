@@ -30,3 +30,5 @@ def getSingleBuilding():
         retList.append( {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2]})
 
     return jsonify(retList)
+
+# @geo_features.route('/create')
