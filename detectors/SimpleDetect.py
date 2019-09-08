@@ -54,7 +54,6 @@ class SimpleDetect:
 
     def detect_building(self):
         grayscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-        np.save('grayscale', grayscale_image)
 
         # Get the x,y coordinates of the click
         x, y = geolocation.deg_to_tilexy(self.lat, self.long, self.zoom)
