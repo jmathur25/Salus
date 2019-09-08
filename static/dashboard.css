@@ -1,0 +1,47 @@
+#map {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+}
+
+#pills-tab {
+    margin-left: 10px;
+}
+
+#pills-home h4 {
+    margin-left: 10px;
+}
+
+#wrapper-of-wrapper {
+    height:100vh;
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 75%;
+    overflow: auto;
+    padding: 0;
+}
+
+#wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+#message-bar {
+    width: 100%;
+    background-color: #83B3E4;
+    margin-left: 0px; 
+    width: 25%;
+    height: 100%;
+}
+
+#pills-home {
+    overflow-y: scroll;
+}
+
+.card {
+    width: 18rem;
+    width: 85%;
+    margin-top:10px;
+    margin-left: 20px; 
+}

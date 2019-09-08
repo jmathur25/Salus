@@ -7,9 +7,8 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
     <title>Salus</title>
-
 
      <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
   <meta charset="utf-8">
@@ -94,7 +93,7 @@
         for (i =  data.length - 1; i >= 0; i--) {
 
           $('#pills-home').append(
-                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                      "<div class='card'> \
                         <div class='card-body'> \
                           <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
                           <h6 class='card-subtitle mb-2 text-muted' style='margin-top:10px;'>" + data[i]["phoneNumber"]+ "</h6> \
@@ -116,7 +115,7 @@
         for (i =  data.length - 1; i >= 0; i--) {
 
           $('#pills-profile').append(
-                      "<div class='card'  style='width: 18rem; width: 85%; margin-top:10px; margin-left: 7.5%; '> \
+                      "<div class='card'> \
                         <div class='card-body'> \
                           <h5 class='card-title'>" +  data[i]["fullName"] + "</h5> \
                           <span class='badge badge-danger'> Danger </span> \
@@ -144,66 +143,10 @@
     </script>
     <!-- <div class="container" style="width: 100%"> -->
         <div class="row" style="background-color:blanchedalmond">
-          <div style="height:95vh; margin-left: 0px; margin-right: 40px; width: 75%; overflow: auto">
+          <div id="wrapper-of-wrapper">
               <div id="wrapper">
               <div id="map"></div>
 
-              <div id="onboarding-div">
-                  <div id="onboarding-title">Welcome to Salus!</div>
-                  <div id="onboarding-subtitle">Campus safety system</div>
-                  <div id="onboarding-graphics">
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/campus.png') }}">
-                          <div class="onboarding-text">Find your campus</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/mapbuildings.png') }}">
-                          <div class="onboarding-text">Map important buildings</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/safety.png') }}">
-                          <div class="onboarding-text">Plan and execute safety protocols</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/accountability.png') }}">
-                          <div class="onboarding-text">Maintain accountability during emergencies</div>
-                      </div>
-                  </div>
-                  <button id="letsgo" onclick="dismissOnboarding()">Let's go!</button>
-              </div>
-
-              <!-- Modal -->
-              <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Welcome to Salus!</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      To start, click the the northwest-most and southeast-most points of your campus.
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-success" data-dismiss="modal" onclick="enableMap()">Okay</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div id="overlay">
-                <div id="center-items">
-                  <img id="logo" src="{{ url_for('static', filename='salus-logo-web.png') }}">
-                  <div id="schoolFields">
-                    <input type="text" id="schoolInput" value="">
-                    <button class="btn btn-primary" type="submit" id="schoolGo">Go</button>
-
-                  </div>
-                </div>
-
-              </div>
               <script>
                 // Create map
                 const cur_lat = parseFloat("{{ lat }}");
@@ -418,10 +361,8 @@
               </script>
             </div>
           </div>
-          <div style="background-color: aqua; margin-left: 0px;  width: 20%;">
+          <div id="message-bar">
             <center>
-
-
               <div class="input-group mb-3" style="margin-top:30px;margin-right:30px; width: 80%">
                 <input type="text" class="form-control" id="textMessageField" placeholder="Group Message" aria-label="Group Message" aria-describedby="button-addon2">
                 <div class="input-group-append">
