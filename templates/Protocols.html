@@ -235,6 +235,7 @@
               if (isMarkerInsidePolygon(e.latlng.lat, e.latlng.lng, poly) ) {
                 console.log("found match");
                 id_to_color[b_id] = status_chooser;
+                id_to_polygon[b_id].setStyle({fillColor: status_chooser, color: status_chooser});
               }
             }
             }
