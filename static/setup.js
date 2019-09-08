@@ -2,6 +2,14 @@ var schoolName = "";
 
 window.onload = function() {
 
+    var isMobile = window.orientation > -1;
+
+    if (isMobile) {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("onboarding-div").style.display = "none";
+        document.getElementById("onboarding-div-map").style.display = "none";
+    }
+
     var schoolInput = document.getElementById("schoolInput");
     var goInput = document.getElementById("schoolGo");
 
