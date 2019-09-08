@@ -33,6 +33,30 @@
   <div id="wrapper">
     <div id="map"></div>
 
+    <div id="onboarding-div">
+        <div id="onboarding-title">Welcome to Salus!</div>
+        <div id="onboarding-subtitle">Campus safety system</div>
+        <div id="onboarding-graphics">
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/campus.png') }}">
+                <div class="onboarding-text">Find your campus</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/mapbuildings.png') }}">
+                <div class="onboarding-text">Map important buildings</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/safety.png') }}">
+                <div class="onboarding-text">Plan and execute safety protocols</div>
+            </div>
+            <div class="onboarding-group">
+                <img src="{{ url_for('static', filename='images/accountability.png') }}">
+                <div class="onboarding-text">Maintain accountability during emergencies</div>
+            </div>
+        </div>
+        <button id="letsgo">Let's go!</button>
+    </div>
+
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
       aria-hidden="true">
