@@ -53,6 +53,69 @@ def index(zoom=None, lat=None, lng=None):
     return render_template('Protocols.html', protocols=getProtocols(), **context)
 
 
+@protocol_pick.route('/addNewProtocol',  methods=['GET', 'POST'])
+def addNewProtocol():
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    protocolName = request.args.get('protocolName')
+    type = request.args.get('type')
+    initialInstruction = request.args.get('initialInstruction')
+
+    mapOfBuildingIds = json.loads(request.args.get('mapOfBuildingIds'))
+    print(mapOfBuildingIds)
+
+    insertQuery = """   
+                    Insert Into Protocols(schoolName, protocolName, type, initialInstruction) 
+                        values ("UIUC", %s, %s, %s)
+                        """
+    cursor = cnx.cursor()
+    cursor.execute(insertQuery, (protocolName, type, initialInstruction))
+    cnx.commit()
+
+    query = """
+        Select id from Protocols Where schoolName = %s AND protocolName = %s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(query, ("UIUC", protocolName))
+    result = cursor.fetchall()
+
+    print("ID of protocol ", result[0][0])
+
+    updateTables(result[0][0], mapOfBuildingIds)
+
+    return jsonify(True)
+
+
+
+def updateTables(protocolID, mapOfBuildingIds):
+
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    for key in mapOfBuildingIds.keys():
+        status = mapOfBuildingIds[key]
+
+        insertQuery = """ Insert Into ProtocolToBuilding(protocolID, buildingID) values (%s, %s) """
+        protocolStatusInitial = """ Insert Into ProtocolStatusInitial(protocolName, buildingID, buildingStatus) values (%s, %s, %s) """
+        cursor = cnx.cursor()
+
+        cursor.execute(insertQuery, (protocolID, key))
+        cursor.execute(protocolStatusInitial, (protocolID, key, status))
+
+        cnx.commit()
+
+
+
+
+
+
 @protocol_pick.route('/setup', methods=['POST'])
 def setup():
     # from .setup import ...
