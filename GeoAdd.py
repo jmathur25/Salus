@@ -3,25 +3,11 @@ import mysql.connector
 from flask import Blueprint
 from Person import get_file_contents
 
-zone = ["building", "field", "field", "building"]
-point = [
-            [(0,0), (6,0), (1,0), (0,6)],
-            [(0,1), (0,0), (0,0), (5,0)],
-            [(9,0), (0,1), (0,2), (0,3)],
-            [(0,5), (3,0), (4,0), (2,0)],
-         ]
-tile = [
-            [(0,0), (6,0), (1,0), (0,6)],
-            [(0,1), (0,0), (0,0), (5,0)],
-            [(9,0), (0,1), (0,2), (0,3)],
-            [(0,5), (3,0), (4,0), (2,0)],
-         ]
-
 
 
 def addAllGeo(zoneTypes, zonePoints, tileCoords):
 
-    host_name = get_file_contents("HostDB");
+    host_name = get_file_contents("HostDB")
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
                                   host=host_name,
@@ -70,6 +56,5 @@ def addAllGeo(zoneTypes, zonePoints, tileCoords):
             cnx.commit()
 
 
-    return idSet;
-
+    return idSet
 

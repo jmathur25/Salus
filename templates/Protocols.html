@@ -44,9 +44,8 @@
     <!-- <div class="container" style="width: 100%"> -->
         <div class="row" style="background-color:blanchedalmond">
           <div style="height:95vh; margin-left: 0px; margin-right: 40px; width: 20%; overflow: auto">
-              <center>
                 <h4 style="margin-top:15px;"> Protocols </h4>
-                 <a href="#" class="btn btn-success " style="width:90%; margin-top: 5px;">Create a New Protocol</a>
+                 <a href="/protocolPicker/create_new_protocol" class="btn btn-success " style="width:90%; margin-top: 5px;">Create a New Protocol</a>
 
                 {% for protocol in protocols %}
 
@@ -63,310 +62,224 @@
                 </div>
 
                 {% endfor %}
-              </center>
 
           </div>
           <div style="background-color: aqua; margin-left: 0px; padding-left: 10px; width: 75%;">
+          <div id="wrapper">
+            <div id="map"></div>
+          </div>
+            <script>
 
+              // Create map
+              const cur_lat = parseFloat("{{ lat }}");
+              const cur_lng = parseFloat("{{ lng }}");
+              const cur_zoom = parseFloat("{{ zoom }}");
+              const access_key = "{{ access_key }}";
 
-            <div id="wrapper">
-              <div id="map"></div>
+              // config.yml decides this
+              var map = L.map('map').setView([cur_lat, cur_lng], cur_zoom);
 
-              <div id="onboarding-div">
-                  <div id="onboarding-title">Welcome to Salus!</div>
-                  <div id="onboarding-subtitle">Campus safety system</div>
-                  <div id="onboarding-graphics">
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/campus.png') }}">
-                          <div class="onboarding-text">Find your campus</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/mapbuildings.png') }}">
-                          <div class="onboarding-text">Map important buildings</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/safety.png') }}">
-                          <div class="onboarding-text">Plan and execute safety protocols</div>
-                      </div>
-                      <div class="onboarding-group">
-                          <img src="{{ url_for('static', filename='images/accountability.png') }}">
-                          <div class="onboarding-text">Maintain accountability during emergencies</div>
-                      </div>
-                  </div>
-                  <button id="letsgo" onclick="dismissOnboarding()">Let's go!</button>
-              </div>
+              // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
+              L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
+              }).addTo(map);
 
-              <!-- Modal -->
-              <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Welcome to Salus!</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      To start, click the the northwest-most and southeast-most points of your campus.
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-success" data-dismiss="modal" onclick="enableMap()">Okay</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        
+        var status_chooser = 'green';
 
-              <div id="overlay">
-                <div id="center-items">
-                  <img id="logo" src="{{ url_for('static', filename='salus-logo-web.png') }}">
-                  <div id="schoolFields">
-                    <input type="text" id="schoolInput" value="">
-                    <button class="btn btn-primary" type="submit" id="schoolGo">Go</button>
+        L.Control.StatusChooser = L.Control.extend({
+            options: {
+                position: 'topright',
+                text: 'SC',
+                title: 'Status Chooser'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.statusChooser = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                if (status_chooser == 'red') {
+                  status_chooser = 'yellow';
+                } else if (status_chooser == 'yellow') {
+                  status_chooser = 'green';
+                } else {
+                  status_chooser = 'red';
+                }
 
-                  </div>
-                </div>
+                var color = "#C04444";
+                if (status_chooser == 'yellow') {
+                    color = "#F1B652";
+                } else if (status_chooser == 'green') {
+                  color = '#45B76F'
+                }   
+                this.statusChooser.style.backgroundColor = color;
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
 
-              </div>
-              <script>
-                // Create map
-                const cur_lat = parseFloat("{{ lat }}");
-                const cur_lng = parseFloat("{{ lng }}");
-                const cur_zoom = parseFloat("{{ zoom }}");
-                const access_key = "{{ access_key }}";
+        // Merge button constructor
+        L.Control.statusChooser = function(opts) {
+            return new L.Control.StatusChooser(opts);
+        }
 
-                // config.yml decides this
-                var map = L.map('map').setView([cur_lat, cur_lng], cur_zoom);
+        // Add the merge button to the map
+        var statusChooserButton = L.Control.statusChooser().addTo(map);
 
-                // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
-                L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
-                  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                  maxZoom: 18,
-                  id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
-                }).addTo(map);
+        var submit_protocol = false;
 
-                  var setupMode = false;
+        L.Control.SubmitProtocol = L.Control.extend({
+            options: {
+                position: 'topright',
+                text: 'SP',
+                title: 'Submit Protocol'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.submit_protocol = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                submit_protocol = !submit_protocol;
+                if (submit_protocol) {
+                  const name = prompt("Name This Protocol");
+                  const event = prompt("What situation is this?");
+                  const initial_instruct = prompt("What is an initial instruction?");
+                  const string = JSON.stringify(id_to_color);
+                  const params = "json=" + JSON.stringify(id_to_color);
+                      var xhr = new XMLHttpRequest();
+                      xhr.open("POST", "/protocolPicker/addNewProtocol?protocolName=" + name + "&type=" + event + "&initialInstruction=" + initial_instruct + "&mapOfBuildingIds=" + string, true);
+                      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                      xhr.onreadystatechange = function() {
+                      if (xhr.readyState == 4 && xhr.status == 200) {
 
-                  L.Control.SetupButton = L.Control.extend({
-                      options: {
-                          position: 'topleft',
-                          text: 'S',
-                          title: 'Setup Mode?'
-                      },
-                      onAdd: function (map) {
-                          var zoomName = 'leaflet-control-zoom',
-                              container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
-                              options = this.options;
-                          this.setupButton = this._createButton(options.text, options.title,
-                                  zoomName + '-in',  container, this.buttonClick);
-                          return container;
-                      },
-                      buttonClick: function (e) {
-                          setupMode = !setupMode;
-                          var color = "#FFFFFF";
-                          if (setupMode) {
-                              deleteBuildings.enable();
-                              color = "#BBFFBB";
-                          }
-                          this.setupButton.style.backgroundColor = color;
-
-                          // send post reques saying "Setup" was clicked
-                          var params = "";
-                          var xhr = new XMLHttpRequest();
-                          xhr.open("POST", "./setup", true);
-                          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                          // Wait for a response
-                          xhr.onreadystatechange = function() {
-                              if (xhr.readyState === 4 && xhr.status === 200) {
-                                  console.log("got return"); // here you should enable setup scripts
-                              }
-                          }
-                          xhr.send(params);
-                      },
-                      _createButton: function (html, title, className, container, fn) {
-                          var link = L.DomUtil.create('a', className, container);
-                          link.innerHTML = html;
-                          link.href = '#';
-                          link.title = title;
-                          /*
-                           * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-                           */
-                          link.setAttribute('role', 'button');
-                          link.setAttribute('aria-label', title);
-                          L.DomEvent.disableClickPropagation(link);
-                          L.DomEvent.on(link, 'click', L.DomEvent.stop);
-                          L.DomEvent.on(link, 'click', fn, this);
-                          L.DomEvent.on(link, 'click', this._refocusOnMap, this);
-                          return link;
-                      }
-                  });
-
-                  // Merge button constructor
-                  L.Control.setupButton = function(opts) {
-                      return new L.Control.SetupButton(opts);
-                  }
-
-                  // Add the merge button to the map
-                  var setupButton = L.Control.setupButton({ position: "topleft" }).addTo(map);
-
-                  // Handle map clicks
-                  function onMapClick(e) {
-                          if (setupMode) {
-                                  console.log('sending post...');
-
-                                  if (deleteClick) {
-                                      const params = "lat=" + encodeURIComponent(e.latlng.lat + "") +
-                                                  "&lng=" + encodeURIComponent(e.latlng.lng + "") +
-                                                  "&zoom=" + encodeURIComponent(map.getZoom());
-                                                  var xhr = new XMLHttpRequest();
-                                                  xhr.open("POST", "./setup/delete", true);
-                                                  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                                  xhr.onreadystatechange = function() {
-                                                  if (xhr.readyState == 4 && xhr.status == 200) {
-                                                      // Parse the response
-                                                      var responseJson = JSON.parse(xhr.responseText);
-                                                      var rectsToDelete = responseJson["rects_to_delete"];
-
-                                                      // Delete polygon(s)
-                                                      if (rectsToDelete["ids"].length > 0) {
-                                                          // removeMasks(rectsToDelete["ids"]);
-                                                          removePolygon(rectsToDelete['ids']);
-                                                      }
-                                                  }
-                                              }
-                                          xhr.send(params);
-                                  }
-                                  else {
-                                      const params = "lat=" + encodeURIComponent(e.latlng.lat + "") +
-                                                      "&lng=" + encodeURIComponent(e.latlng.lng + "") +
-                                                      "&zoom=" + encodeURIComponent(map.getZoom());
-                                      var xhr = new XMLHttpRequest();
-                                      xhr.open("POST", "/setup/corners", true);
-                                      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                      xhr.onreadystatechange = function() {
-                                          if (xhr.readyState == 4 && xhr.status == 200) {
-                                              // these will be hella buildings
-                                              console.log("got response, buildings will be plotted");
-
-                                              // Parse the response
-                                              var responseJson = JSON.parse(xhr.responseText);
-                                              var rectsToAdd = responseJson["rects_to_add"];
-                                              var rectsToDelete = responseJson["rects_to_delete"];
-
-                                              // Add polygon(s)
-                                              if (rectsToAdd.length > 0) {
-
-                                                  var rect = rectsToAdd[0];
-                                                  var rectPoints = rect["points"];
-                                                  var rectIds = rect["ids"];
-                                                  addPolygons(rectPoints, rectIds);
-                                              }
-                                          }
-                                      }
-                                      xhr.send(params);
-                                  }
-                          }
-                      }
-                  map.on("click", onMapClick);
-
-
-                  // Polygons
-                  var polygons = {}
-                  var polygonStack = [];
-
-                  // Add a polygons to the map
-                  function addPolygons(rectPoints, ids) {
-                      for (i in rectPoints) {
-                          points = rectPoints[i];
-                          polygons[ids[i]] = L.polygon(points);
-                          polygons[ids[i]].addTo(map);
-
-                          // Update the polygon stack
-                          polygonStack.push(ids[i]);
                       }
                   }
+                  xhr.send(params);
+                }
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
 
-                  // Remove a polygon, from cntrl-z or merge_mode
-                  function removePolygon(id, updateStack=true, sendChange=false) {
-                      // Remove from map
-                      console.log('removing:', id);
-                      if (id == -1) { // -1 means no building
-                          return;
-                      }
-                      polygons[id].remove();
+        // Merge button constructor
+        L.Control.submit_protocol = function(opts) {
+            return new L.Control.SubmitProtocol(opts);
+        }
 
-                      // Remove from dictionary
-                      delete polygons[id];
+        // Add the merge button to the map
+        var submit_protocol_button = L.Control.submit_protocol().addTo(map);
 
-                      if (updateStack) {
-                          polygonStack.splice(polygonStack.indexOf(id), 1);
-                      }
+
+        function isMarkerInsidePolygon(lat, lng, poly) {
+            var inside = false;
+            var x = lat, y = lng;
+            for (var ii=0;ii<poly.getLatLngs().length;ii++){
+                var polyPoints = poly.getLatLngs()[ii];
+                for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+                    var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+                    var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+                    var intersect = ((yi > y) != (yj > y))
+                        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+            }
+
+            return inside;
+        };
+
+        // Handle map clicks
+        function onMapClick(e) {
+          console.log('in system', e.latlng.lat, e.latlng.lng);
+            for (var b_id in id_to_polygon) {
+              poly = id_to_polygon[b_id];
+              latlngs = poly.getLatLngs();
+              if (isMarkerInsidePolygon(e.latlng.lat, e.latlng.lng, poly) ) {
+                console.log("found match");
+                id_to_color[b_id] = status_chooser;
+                id_to_polygon[b_id].setStyle({fillColor: status_chooser, color: status_chooser});
+              }
+            }
+            }
+            map.on("click", onMapClick);
+
+            </script>
+
+            {% if zones %}
+            <script>
+                // Polygons
+                var id_to_polygon = {};
+                var tiles_to_ids = {};
+
+                // post
+                var id_to_color = {};
+
+                // Add a polygons to the map
+                function addPolygon(points, id, tile) {
+                  console.log(points);
+                  let newPolygon = L.polygon(points)
+                  newPolygon.addTo(map);
+                  id_to_polygon[id] = newPolygon;
+                  if (tile in tiles_to_ids) {
+                    tiles_to_ids[tile].append(id);
+                  } else {
+                    tiles_to_ids = [id];
                   }
-
-                  var deleteClick = false;
-
-                  // Add merge control
-                  L.Control.DeleteBuildings = L.Control.extend({
-                      options: {
-                          position: 'topleft',
-                          text: 'DB',
-                          title: 'Delete Buildings'
-                      },
-                      onAdd: function (map) {
-                          var zoomName = 'leaflet-control-zoom',
-                              container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
-                              options = this.options;
-                          this.deleteBuildings = this._createButton(options.text, options.title,
-                                  zoomName + '-in',  container, this.buttonClick);
-                          this.disable();
-                          return container;
-                      },
-                      buttonClick: function (e) {
-                          if (setupMode) {
-                              deleteClick = !deleteClick;
-                              var col = "#FFFFFF";
-                              if (deleteClick) {
-                                  col = "#FF0000";
-                              }
-                              this.deleteBuildings.style.backgroundColor = col;
-
-
-                          }
-                      },
-                      _createButton: function (html, title, className, container, fn) {
-                          var link = L.DomUtil.create('a', className, container);
-                          link.innerHTML = html;
-                          link.href = '#';
-                          link.title = title;
-                          /*
-                           * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-                           */
-                          link.setAttribute('role', 'button');
-                          link.setAttribute('aria-label', title);
-                          L.DomEvent.disableClickPropagation(link);
-                          L.DomEvent.on(link, 'click', L.DomEvent.stop);
-                          L.DomEvent.on(link, 'click', fn, this);
-                          L.DomEvent.on(link, 'click', this._refocusOnMap, this);
-                          return link;
-                      },
-                      disable: function () {
-                          this.deleteBuildings.style.opacity = 0.2;
-                      },
-                      enable: function () {
-                          this.deleteBuildings.style.opacity = 1;
-                      },
-                  });
-
-                  // Merge button constructor
-                  L.Control.deleteBuildings = function(opts) {
-                      return new L.Control.DeleteBuildings(opts);
+                }
+              
+                var zones = JSON.parse('{{zones | tojson}}');
+                var i = 0;
+                while (i < zones.length) {
+                  var cur_id = zones[i]['buildingId'];
+                  var geopoints = [];
+                  var tiles = [];
+                  while (zones[i]['buildingId'] === cur_id) {
+                    geopoints.push([zones[i]['latitude'], zones[i]['longitude']]);
+                    tiles.push([zones[i]['xTile'], zones[i]['yTile']]);
+                    i++;
                   }
-
-                  // Add the merge button to the map
-                  var deleteBuildings = L.Control.deleteBuildings({ position: "topleft" }).addTo(map);
-                  deleteBuildings.disable();
-
-              </script>
+                  addPolygon(geopoints, cur_id, tiles);
+                }
+            </script>
+            {% endif %}
             </div>
           </div>
 

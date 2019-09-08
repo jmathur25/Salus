@@ -61,7 +61,7 @@ def home(zoom=None, lat=None, lng=None):
     context['lng'] = lng
     context['zoom'] = zoom
     context['access_key'] = access_key
-    return render_template('DisplayMap.html', **context)
+    return render_template('Setup.html', **context)
 
 @application.route('/<zoom>/<lat>/<lng>', methods=['GET'])
 def move_to_new_lat_long(zoom, lat, lng):
@@ -81,12 +81,17 @@ def create_zones():
     print(info)
     keys = ['building_stack', 'field_stack']
     for k in keys:
+        if k not in info:
+            continue
         json_acceptable_string = info[k].replace("'", "\"")
         print(json_acceptable_string)
         parsed = json.loads(json_acceptable_string)
         info[k] = parsed
-    setup.handle_zone_data(info)
-    return 'success'
+
+    # creates zones in the database and choose a place to start
+    lat_start, lng_start = setup.handle_zone_data(info)
+
+    return '/protocolPicker/18/{}/{}'.format(lat_start, lng_start)
 
 # --------- #
 

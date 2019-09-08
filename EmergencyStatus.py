@@ -229,7 +229,7 @@ def endEmergency():
     cursor.execute(insertQuery)
     cnx.commit()
 
-    return jsonify(True)
+    return render_template("NoEmergency.html")
 
 
 
