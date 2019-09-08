@@ -58,6 +58,7 @@ def getInitialBuildings():
 def startEmergency():
     protocolID = request.args.get('protocolID')
     sendEmergencyInfoToTwilioSubs(protocolID)
+    sendEmergencyPortalToAdmins(protocolID)
     host_name = get_file_contents("HostDB");
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
@@ -140,6 +141,56 @@ def sendEmergencyInfoToTwilioSubs(protocolID):
             to= str(res[1]),
             from_ = '15087318632',
             body = "IMPORTANT! There is an " + str(protocolType) + " We are following " + str(protocolName) + " which says to " + str(protocolDesc) + ""
+
+        )
+
+    pass
+
+
+def sendEmergencyPortalToAdmins(protocolID):
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    query = """
+                Select * 
+                From Protocols
+                Where id = %s %s;
+            """
+
+    cursor = cnx.cursor()
+    cursor.execute(query, (protocolID, ""))
+    result = cursor.fetchall()
+    print(result)
+    protocolName = result[0][2]
+    protocolDesc = result[0][3]
+    protocolType = result[0][4]
+
+    query = """
+                Select phoneNumber
+                From Admins
+                Where phoneNumber is not Null
+            """
+
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    sid = get_file_contents('sid.txt')
+    authToken = get_file_contents('TwilioAuth.txt')
+    client = Client(
+        sid,
+        authToken
+    )
+    for res in result:
+        print(res[0])
+        mes = client.messages.create(
+            to=str(res[0]),
+            from_='15087318632',
+            body="IMPORTANT! There is an " + str(protocolType) + " We are following " + str(
+                protocolName) + " which says to " + str(protocolDesc) + " MANAGE PORTAL: http://salus.kxgp8z9g5d.us-east-2.elasticbeanstalk.com/emergency/"
 
         )
 

@@ -212,7 +212,6 @@ def getPeopleByTileGrouping():
                                   host=host_name,
                                   database='innodb')
 
-    buildingId = request.args.get('buildingId')
     query = """
                 Select People.xTile, People.yTile, People.id, People.currentLatitude, People.currentLongitude 
                 From (Select distinct buildingID, buildingStatus, GeoFeatures.schoolName, xTile, yTile, structureType  
