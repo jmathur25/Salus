@@ -19,7 +19,12 @@ window.onload = function() {
     goInput.onclick = function(event) {
         schoolName = schoolInput.value;
         fadeOutEffect();
-        showModal();
+
+        var mapOnboarder = document.getElementById("onboarding-div-map");
+
+        mapOnboarder.style.display = "flex";
+
+        // showModal();
     };
 
     $(function() {
@@ -87,4 +92,9 @@ function enableMap() {
 
 function dismissOnboarding() {
     document.getElementById("onboarding-div").style.display = "none";
+}
+
+function dismissMapOnboarding() {
+    enableMap()
+    document.getElementById("onboarding-div-map").style.display = "none";
 }

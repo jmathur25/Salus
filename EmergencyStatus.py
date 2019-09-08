@@ -24,12 +24,13 @@ def index(zoom=None, lat=None, lng=None):
     context['lng'] = lng
     context['zoom'] = zoom
     context['access_key'] = access_key
-
-    if isActiveEmergency:
+    jsonDoc = isActiveEmergency()
+    print(jsonDoc)
+    if jsonDoc:
 
         return render_template('Dashboard.html', **context)
     else:
-        return render_template()
+        return render_template("NoEmergency.html")
 
 
 def getQueryBuildingInit():
@@ -322,11 +323,11 @@ def isActiveEmergency():
 
     print(len(result))
     if len(result) > 0:
-        return jsonify(True)
+        return True
 
 
 
-    return jsonify(False)
+    return False
 
 
 

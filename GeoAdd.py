@@ -4,6 +4,7 @@ from flask import Blueprint
 from Person import get_file_contents
 
 
+
 def addAllGeo(zoneTypes, zonePoints, tileCoords):
 
     host_name = get_file_contents("HostDB")
@@ -56,6 +57,4 @@ def addAllGeo(zoneTypes, zonePoints, tileCoords):
 
 
     return idSet
-
-
 
