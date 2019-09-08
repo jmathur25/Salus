@@ -157,31 +157,39 @@ div#overlay {
 }
 
 #delete-building {
-  background: url("/static/images/delete_button.png") no-repeat scroll 0 0 transparent;
+  background: url("/static/images/delete.png") no-repeat scroll 0 0 transparent;
   z-index: 300;
-  left: 10px;
-  bottom: 10px;
-  position: absolute;
 }
 
 #complex-mode {
   background: url("/static/images/complex_button.png") no-repeat scroll 0 0 transparent;
   z-index: 300;
-  position: absolute;
 }
 
 #simple-mode {
   background: url("/static/images/simple_button.png") no-repeat scroll 0 0 transparent;
   z-index: 300;
-  position: absolute;
 }
 
 #submit-map button {
   background: url("/static/images/submit_map_button.png") no-repeat scroll 0 0 transparent;
-  z-index: 300;
-  position: absolute;
   width: 40px;
   height: auto;
   padding: 20px;
   margin: 20px;
+}
+
+.control-button {
+  height: 30px;
+  width: 30px;
+}
+
+.leaflet-control-container {
+  display: none;
+}
+
+.leaflet-bottom .leaflet-left {
+  display: flex;
+  z-index: 300;
+  position: absolute;
 }

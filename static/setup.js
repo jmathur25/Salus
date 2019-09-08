@@ -95,5 +95,6 @@ function dismissOnboarding() {
 }
 
 function dismissMapOnboarding() {
+    enableMap()
     document.getElementById("onboarding-div-map").style.display = "none";
 }
