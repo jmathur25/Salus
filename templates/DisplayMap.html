@@ -30,7 +30,27 @@
   </nav>
 
   <div id="wrapper">
-    <div id="map"></div>
+    <div id="map">
+        <style>
+            #submit-map {
+                background: url("/static/images/submit_map_button.png") no-repeat scroll 0 0 transparent;
+                z-index: 300;
+                position: absolute;
+                width: 40px;
+                height: auto;
+                padding: 20px;
+                margin: 20px;
+            }
+            </style>
+        <div class="leaflet-bottom leaflet-right">
+            <button ion-button class="button-action" onclick="Action()" id="submit-map" block>Action!</button>
+        </div>
+        <button id="delete-building"></button>
+        <button id="complex-mode"></button>
+        <button id="simple-mode"></button>
+        <button id="four-corners-mode"></button>
+        <!-- <button id="submit-map"></button> -->
+    </div>
 
     <div id="onboarding-div">
         <div id="onboarding-title">Welcome to Salus!</div>
@@ -90,7 +110,6 @@
         <div id="schoolFields">
           <input type="text" id="schoolInput" value="">
           <button class="btn btn-primary" type="submit" id="schoolGo">Go</button>
-
         </div>
       </div>
 
@@ -123,7 +142,7 @@
 
         L.Control.Four_Click_Mode = L.Control.extend({
             options: {
-                position: 'topright',
+                position: 'bottomleft',
                 text: '4C',
                 title: 'Four Click Mode?'
             },
