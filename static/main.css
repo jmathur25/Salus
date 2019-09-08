@@ -1,0 +1,64 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  padding: 0;
+}
+
+#wrapper{
+  position: relative;
+  height: 100%;
+}
+  
+#map {
+  z-index: 1;
+  position: relative;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+div#overlay {
+  z-index: 99;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
+  margin-left: 0;
+  position: absolute;
+  background-color:rgba(131, 179, 228, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logo {
+  opacity: 1.0;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#center-items {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+#schoolInput {
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
+.navbar {
+  background-color: rgb(95, 143, 190);
+}
+
+.navbar img {
+  overflow: hidden;
+}
+
+.modal-header {
+  text-align: center;
+}

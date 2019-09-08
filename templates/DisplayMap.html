@@ -1,49 +1,86 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Salus Web View</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" >
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }#map {
-        position: relative;
-        height: 100%;
-      }
-    </style>
-    <script type="text/javascript" src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
-  </head>
-  <body>
 
-    <!--
-    <div id="title" style="z-index: 500; left: 0%; right: 0%; margin-left: auto; margin-right: auto; position: absolute">
-        <h4 style="color: white; text-align: center; margin-top: 0%">OpenStreetMap Building Detector</h4>
-    </div>
-    -->
+<head>
+  <title>Salus Web View</title>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" type='text/css'>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script type="text/javascript" src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='setup.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <nav class="navbar" id="navbar">
+    <a class="navbar-brand" href="#">
+      <img src="{{ url_for('static', filename='salus-logo-web.png') }}" height="30" alt="">
+    </a>
+  </nav>
+
+  <div id="wrapper">
     <div id="map"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Welcome to Salus!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            To start, click the the northwest-most and southeast-most points of your campus.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="enableMap()">Okay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay">
+      <div id="center-items">
+        <img id="logo" src="{{ url_for('static', filename='salus-logo-web.png') }}">
+        <div id="schoolFields">
+          <input type="text" id="schoolInput" value="">
+          <button class="btn btn-primary" type="submit" id="schoolGo">Go</button>
+
+        </div>
+      </div>
+
+    </div>
     <script>
-        // Create map
-        const cur_lat = parseFloat("{{ lat }}");
-        const cur_lng = parseFloat("{{ lng }}");
-        const cur_zoom = parseFloat("{{ zoom }}");
-        const access_key = "{{ access_key }}";
+      // Create map
+      const cur_lat = parseFloat("{{ lat }}");
+      const cur_lng = parseFloat("{{ lng }}");
+      const cur_zoom = parseFloat("{{ zoom }}");
+      const access_key = "{{ access_key }}";
 
-        // config.yml decides this
-        var map = L.map('map').setView([ cur_lat, cur_lng ], cur_zoom);
+      // config.yml decides this
+      var map = L.map('map').setView([cur_lat, cur_lng], cur_zoom);
 
-        // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
-        }).addTo(map);
+      // uses the variable accessKey in config, which is set in the initial config.yml, to pull images
+      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ access_key }}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
+      }).addTo(map);
 
         var setupMode = false;
 
@@ -267,6 +304,7 @@
         deleteBuildings.disable();
 
     </script>
-  </body>
+  </div>
+</body>
 
 </html>
