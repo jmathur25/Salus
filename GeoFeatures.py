@@ -77,3 +77,30 @@ def getAllBuildings():
         
     return retList
 
+
+
+
+
+
+@geo_features.route('/getActiveBuildings')
+def getActiveBuildings():
+    host_name = get_file_contents("HostDB");
+
+    cnx = mysql.connector.connect(user='root', password='Shatpass',
+                                  host=host_name,
+                                  database='innodb')
+
+    allItems = []
+
+    query = """
+                        Select distinct ProtocolStatusCurrent.buildingId, latitude, longitude,  buildingStatus from ProtocolStatusCurrent join GeoFeatures on ProtocolStatusCurrent.buildingID = GeoFeatures.idBuilding;
+                        """
+    cursor = cnx.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    retList = []
+    for res in result:
+        retList.append(
+            {'buildingId': res[0], 'latitude': res[1], 'longitude': res[2], "color": res[3]})
+
+    return jsonify(retList)
