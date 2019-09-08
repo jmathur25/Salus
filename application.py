@@ -2,6 +2,7 @@ import os
 import shutil
 import numpy as np
 import json
+import csv
 from Person import person
 from MessageBoard import message_board
 from EmergencyStatus import emergency_status
@@ -13,6 +14,10 @@ from flask import Flask, render_template, request, flash, redirect, url_for, sen
 import config_reader
 import imagery
 import geolocation
+from detectors.Detector import Detector
+
+# server side scripts
+import setup
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -62,10 +67,28 @@ def home(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
+# ---- SETUP URLS ---- #
+
 @application.route('/setup', methods=['POST'])
-def setup():
+def setup_starter():
     # from .setup import ...
     return "success"
+
+@application.route('/setup/create_zones', methods=['POST'])
+def create_zones():
+    result = request.form
+    info = result_to_dict(result)
+    print(info)
+    keys = ['building_stack', 'field_stack']
+    for k in keys:
+        json_acceptable_string = info[k].replace("'", "\"")
+        print(json_acceptable_string)
+        parsed = json.loads(json_acceptable_string)
+        info[k] = parsed
+    setup.handle_zone_data(info)
+    return 'success'
+
+# --------- #
 
 @application.route('/setup/corners', methods=['POST'])
 def identify_region():
@@ -74,6 +97,8 @@ def identify_region():
     lat = float(info['lat'])
     lng = float(info['lng'])
     zoom = float(info['zoom'])
+    strategy = info['strategy']
+
 
     imd = get_imd()
     # old way, tabling for now...
@@ -85,23 +110,36 @@ def identify_region():
     xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
     image = np.array(imd.download_tile(xtile, ytile, zoom))
 
-    # SETUP MRCNN STUFF
-    global mrcnn
-    if mrcnn is None: # import if not already imported
-        print('import MRCNN stuff...')
-        from Mask_RCNN_Detect import Mask_RCNN_Detect
-        mrcnn = Mask_RCNN_Detect('weights/epoch55.h5')
+    building_ids = None
+    building_points = None
 
-    mask_data = mrcnn.detect_building(image, lat, lng, zoom)
-    building_ids = list(mask_data.keys())
-    building_points = list(mask_data.values())
+    if strategy == 'mrcnn':
+        # SETUP MRCNN STUFF
+        global mrcnn
+        if mrcnn is None: # import if not already imported
+            print('import MRCNN stuff...')
+            from Mask_RCNN_Detect import Mask_RCNN_Detect
+            mrcnn = Mask_RCNN_Detect('weights/epoch55.h5')
+
+        mask_data = mrcnn.detect_building(image, lat, lng, zoom)
+        building_ids = list(mask_data.keys())
+        building_points = list(mask_data.values())
+
+    else:
+        detector = Detector(image, lat, lng, zoom)
+        rect_id, rect_points = detector.detect_building()
+        building_ids = [rect_id]
+        building_points = [rect_points]
+
+    print(building_points)
 
     json_post = {"rects_to_add": [{
-                            "ids": building_ids,
-                            "points": building_points
-                        }],
-        "rects_to_delete": {"ids": []}
-                                }
+                                "ids": building_ids,
+                                "points": building_points
+                            }],
+            "rects_to_delete": {"ids": []}
+                    }
+
     return json.dumps(json_post)
 
 @application.route('/setup/delete', methods=['POST'])

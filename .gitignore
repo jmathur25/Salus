@@ -1,8 +1,11 @@
 # mine
+.DS_Store
 config.yml
 website_password.txt
 salusenv/
 weights/
+college_data/hd2017.csv
+college_data/query.ipynb
 ssh_server.txt
 HostDB
 query_mapbox.ipynb
