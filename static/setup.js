@@ -91,10 +91,11 @@ function enableMap() {
 };
 
 function dismissOnboarding() {
+    enableMap();
     document.getElementById("onboarding-div").style.display = "none";
 }
 
 function dismissMapOnboarding() {
-    enableMap()
+    enableMap();
     document.getElementById("onboarding-div-map").style.display = "none";
 }

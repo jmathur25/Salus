@@ -1,3 +1,7 @@
+body {
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
 #map {
     left: 0;
     top: 0;
@@ -11,6 +15,12 @@
 
 #pills-home h4 {
     margin-left: 10px;
+    margin-top: 10px;
+}
+
+#pills-profile h4 {
+    margin-left: 10px;
+    margin-top: 10px;
 }
 
 #wrapper-of-wrapper {
