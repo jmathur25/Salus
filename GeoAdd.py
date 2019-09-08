@@ -3,20 +3,10 @@ import mysql.connector
 from flask import Blueprint
 from Person import get_file_contents
 
-zone = ["building", "field", "field", "building"]
-point = [
-            [(0,0), (6,0), (1,0), (0,6)],
-            [(0,1), (0,0), (0,0), (5,0)],
-            [(9,0), (0,1), (0,2), (0,3)],
-            [(0,5), (3,0), (4,0), (2,0)],
-         ]
-tile = [(1,1), (69,420), (75,12), (85,65)]
-
-
 
 def addAllGeo(zoneTypes, zonePoints, tileCoords):
 
-    host_name = get_file_contents("HostDB");
+    host_name = get_file_contents("HostDB")
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
                                   host=host_name,
@@ -45,14 +35,16 @@ def addAllGeo(zoneTypes, zonePoints, tileCoords):
 
         currentZoneName = zoneTypes[i]
         print(currentZoneName)
-        xCoord = tileCoords[i][0]
-        yCoord = tileCoords[i][1]
 
-        print(xCoord)
-        print(yCoord)
-        for zonePoint in zonePoints[i]:
-            lat = zonePoint[0]
-            lon = zonePoint[1]
+
+
+        for j in range(len(zonePoints[i])):
+            lat = zonePoints[i][j][0]
+            lon = zonePoints[i][j][1]
+            xCoord = tileCoords[i][j][0]
+            yCoord = tileCoords[i][j][1]
+            print(xCoord)
+            print(yCoord)
             print(lat)
             print(lon)
 
@@ -63,8 +55,7 @@ def addAllGeo(zoneTypes, zonePoints, tileCoords):
             cnx.commit()
 
 
-    return idSet;
+    return idSet
 
 
 
-print(addAllGeo(zone, point, tile))

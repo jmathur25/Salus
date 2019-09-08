@@ -14,7 +14,7 @@ protocol_pick  = Blueprint('protocol_pick', __name__)
 
 @protocol_pick.route('/getProtocols')
 def getProtocols():
-    host_name = get_file_contents("HostDB");
+    host_name = get_file_contents("HostDB")
 
     cnx = mysql.connector.connect(user='root', password='Shatpass',
                                   host=host_name,
@@ -49,9 +49,11 @@ def index(zoom=None, lat=None, lng=None):
     context['zoom'] = zoom
     context['access_key'] = access_key
 
-
     return render_template('Protocols.html', protocols=getProtocols(), **context)
 
+@protocol_pick.route('/<zoom>/<lat>/<lng>', methods=['GET'])
+def move_to_new_lat_long(zoom, lat, lng):
+    return index(zoom, lat, lng)
 
 @protocol_pick.route('/setup', methods=['POST'])
 def setup():
