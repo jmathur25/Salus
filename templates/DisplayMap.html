@@ -45,6 +45,102 @@
             id: 'mapbox.satellite', // change to 'mapbox.streets' for a street view
         }).addTo(map);
 
+        // ---- IMPORTANT VARIABLE ---- //
+        var MAX_POLYGON_SETUP_ID = 1;
+
+        // ---- FOUR CLICK BUILDINGS ---- //
+        
+        var four_click_mode = false;
+        var four_click_points = [];
+        var four_click_tmp_circles = [];
+
+        L.Control.Four_Click_Mode = L.Control.extend({
+            options: {
+                position: 'topright',
+                text: '4C',
+                title: 'Four Click Mode?'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.fourClickButton = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                four_click_mode = !four_click_mode;
+                var color = "#BBFFBB";
+                if (!four_click_mode) {
+                    color = "#FFFFFF";
+
+                    // wipe arrays
+                    four_click_points = [];
+                    for (var i = 0; i < four_click_tmp_circles.length; i++) {
+                        four_click_tmp_circles[i].onRemove(map);
+                    }
+                    four_click_tmp_circles = [];
+                }
+                this.fourClickButton.style.backgroundColor = color;
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Merge button constructor
+        L.Control.fourClickButton = function(opts) {
+            return new L.Control.Four_Click_Mode(opts);
+        }
+
+        // Add the merge button to the map
+        var fourClickButton = L.Control.fourClickButton().addTo(map);
+
+        const handle_mapclick_4click = function(e) {
+            four_click_points.push([e.latlng.lat, e.latlng.lng]);
+
+            var tmp_circle = L.circle([e.latlng.lat, e.latlng.lng], {
+                color: 'blue',
+                radius: 1
+            }).addTo(map);
+            four_click_tmp_circles.push(tmp_circle);
+
+            if (four_click_points.length == 4) {
+                const isok = prompt('Ok?'); // make this better, can only take 'Yes'
+                if (isok === 'Yes') {
+                    var geostructure_type = prompt('Building or Field?');
+                    if (geostructure_type === 'Building') {
+                        geostructure_type = 0;
+                    } else {
+                        geostructure_type = 1;
+                    }
+                    addPolygons([four_click_points], [-1], [geostructure_type]);
+                }
+
+                // wipe arrays
+                four_click_points = [];
+                for (var i = 0; i < four_click_tmp_circles.length; i++) {
+                    four_click_tmp_circles[i].onRemove(map);
+                }
+                four_click_tmp_circles = [];
+            };
+        };
+
+        // ---- SETUP MODE BUTTON ---- //
+
         var setupMode = false;
 
         L.Control.SetupButton = L.Control.extend({
@@ -109,77 +205,55 @@
         // Add the merge button to the map
         var setupButton = L.Control.setupButton({ position: "topleft" }).addTo(map);
 
+        // -------- //
+
+        // ---- MAP CLICK ---- //
+
         // Handle map clicks
         function onMapClick(e) {
                 if (setupMode) {
-                        console.log('sending post...');
-
+                        console.log('map clicked...');
                         if (deleteClick) {
-                            const params = "lat=" + encodeURIComponent(e.latlng.lat + "") + 
-                                        "&lng=" + encodeURIComponent(e.latlng.lng + "") + 
-                                        "&zoom=" + encodeURIComponent(map.getZoom());
-                                        var xhr = new XMLHttpRequest();
-                                        xhr.open("POST", "./setup/delete", true);
-                                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                        xhr.onreadystatechange = function() {
-                                        if (xhr.readyState == 4 && xhr.status == 200) {
-                                            // Parse the response
-                                            var responseJson = JSON.parse(xhr.responseText);
-                                            var rectsToDelete = responseJson["rects_to_delete"];
-
-                                            // Delete polygon(s)
-                                            if (rectsToDelete["ids"].length > 0) {
-                                                // removeMasks(rectsToDelete["ids"]);
-                                                removePolygon(rectsToDelete['ids']);
-                                            }
-                                        }
-                                    }
-                                xhr.send(params);
-                        }
-                        else {
-                            const params = "lat=" + encodeURIComponent(e.latlng.lat + "") + 
-                                            "&lng=" + encodeURIComponent(e.latlng.lng + "") + 
-                                            "&zoom=" + encodeURIComponent(map.getZoom());
-                            var xhr = new XMLHttpRequest();
-                            xhr.open("POST", "./setup/corners", true);
-                            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                            xhr.onreadystatechange = function() {
-                                if (xhr.readyState == 4 && xhr.status == 200) {
-                                    // these will be hella buildings
-                                    console.log("got response, buildings will be plotted");
-
-                                    // Parse the response
-                                    var responseJson = JSON.parse(xhr.responseText);
-                                    var rectsToAdd = responseJson["rects_to_add"];
-                                    var rectsToDelete = responseJson["rects_to_delete"];
-
-                                    // Add polygon(s)
-                                    if (rectsToAdd.length > 0) {
-
-                                        var rect = rectsToAdd[0];
-                                        var rectPoints = rect["points"];
-                                        var rectIds = rect["ids"];
-                                        addPolygons(rectPoints, rectIds);
-                                    }
-                                }
-                            }
-                            xhr.send(params);
+                            console.log('trying to delete a building');
+                            handle_mapclick_delete_buildings(e);
+                        } else if (four_click_mode) {
+                            console.log('four click mode')
+                            handle_mapclick_4click(e);
+                        } else {
+                            handle_mapclick_detect_buildings(e);
                         }
                 }
             }
         map.on("click", onMapClick);
 
+        // -------- //
+
+        // ---- POLYGON FUNCTIONS ---- //
 
         // Polygons
         var polygons = {}
         var polygonStack = [];
 
         // Add a polygons to the map
-        function addPolygons(rectPoints, ids) {
+        function addPolygons(rectPoints, ids, geostructure_type) {
             for (i in rectPoints) {
+                if (ids[i] === -1) {
+                    ids[i] = MAX_POLYGON_SETUP_ID;
+                }
                 points = rectPoints[i];
-                polygons[ids[i]] = L.polygon(points);
-                polygons[ids[i]].addTo(map);
+                // store points and type
+                let newPolygon = L.polygon(points)
+                if (geostructure_type[i] === 1) {
+                    newPolygon.setStyle({fillColor: '#91dba5', color: "#000000"});
+                }
+
+                polygons[ids[i]] = [newPolygon, geostructure_type[i]];
+                polygons[ids[i]][0].addTo(map);
+
+                // keeps MAX_POLYGON_SETUP_ID up to id
+                if (ids[i] >= MAX_POLYGON_SETUP_ID) {
+                    MAX_POLYGON_SETUP_ID = ids[i] + 1;
+                }
 
                 // Update the polygon stack
                 polygonStack.push(ids[i]);
@@ -187,21 +261,43 @@
         }
 
         // Remove a polygon, from cntrl-z or merge_mode
-        function removePolygon(id, updateStack=true, sendChange=false) {
+        function removePolygon(id, updateStack=true) {
             // Remove from map
             console.log('removing:', id);
             if (id == -1) { // -1 means no building
                 return;
             }
-            polygons[id].remove();
+
+            // moves off display
+            polygons[id][0].remove();
           
             // Remove from dictionary
             delete polygons[id];
-            
+
+            // removes from stack, keeping for control-z
             if (updateStack) {
                 polygonStack.splice(polygonStack.indexOf(id), 1);
             }
         }
+
+        const assembleStacks = function() {
+            var BUILDING_STACK = [];
+            var FIELD_STACK = []; // modified at the end
+
+            for (var poly_id in polygons) {
+                poly = polygons[poly_id][0]._latlngs;
+                geostructure = polygons[poly_id][1];
+                if (geostructure === 0) {
+                    BUILDING_STACK.push(poly);
+                } else {
+                    FIELD_STACK.push(poly);
+                }
+            }
+
+            return [BUILDING_STACK, FIELD_STACK];
+        }
+
+        // ---- DELETE BUILDINGS BUTTON ---- //
 
         var deleteClick = false;
         
@@ -265,6 +361,144 @@
         // Add the merge button to the map
         var deleteBuildings = L.Control.deleteBuildings({ position: "topleft" }).addTo(map);
         deleteBuildings.disable();
+
+        const handle_mapclick_delete_buildings = function(e) {
+            const params =
+                "lat=" + encodeURIComponent(e.latlng.lat + "") + 
+                "&lng=" + encodeURIComponent(e.latlng.lng + "") + 
+                "&zoom=" + encodeURIComponent(map.getZoom());
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "./setup/delete", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    var rectsToDelete = responseJson["rects_to_delete"];
+
+                    // Delete polygon(s)
+                    if (rectsToDelete["ids"].length > 0) {
+                        // removeMasks(rectsToDelete["ids"]);
+                        removePolygon(rectsToDelete['ids']);
+                    }
+                }
+            }
+            xhr.send(params);
+        }
+
+        // ---------- //
+
+        // should make a Mask RCNN button and a Simple Detect button
+        const handle_mapclick_detect_buildings = function(e) {
+            const strategy = prompt('What kind of model to use?'); // 'mrcnn' for complex detect, 'simple' for simple detect
+            console.log('detecting buildings through ' + strategy);
+            const params = "lat=" + encodeURIComponent(e.latlng.lat + "") + 
+                            "&lng=" + encodeURIComponent(e.latlng.lng + "") + 
+                            "&zoom=" + encodeURIComponent(map.getZoom()) +
+                            "&strategy=" + strategy;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./setup/corners", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // these will be hella buildings
+                    console.log("got response, buildings should be being plotted...");
+
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    var rectsToAdd = responseJson["rects_to_add"];
+                    var rectsToDelete = responseJson["rects_to_delete"];
+
+                    var geostructure_types = []
+                    for (var i=0; i < rectsToAdd.length; i++) {
+                        geostructure_types.push(0);
+                    }
+
+                    // Add polygon(s)
+                    if (rectsToAdd.length > 0) {
+
+                        var rect = rectsToAdd[0];
+                        var rectPoints = rect["points"];
+                        var rectIds = rect["ids"];
+
+                        if (strategy !== 'mrcnn') {
+                            rectIds = [-1];
+                        }
+
+                        addPolygons(rectPoints, rectIds, geostructure_types);
+                    }
+                }
+            }
+            xhr.send(params);
+        }
+
+        // ---- Finish Making Zones Button---- //
+
+        L.Control.ZoneButton = L.Control.extend({
+            options: {
+                position: 'bottomleft',
+                text: 'CZ',
+                title: 'Create Zones?'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.zoneButton = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                if (Object.keys(polygons).length < 0 || !setupMode) {
+                    return;
+                }
+
+                const stacks = assembleStacks();
+                const BUILDING_STACK = stacks[0];
+                const FIELD_STACK = stacks[1];
+
+                console.log(BUILDING_STACK)
+                console.log(FIELD_STACK)
+
+                // send post reques saying "Setup" was clicked
+                const params = "BUILDING_STACK=" + JSON.stringify(BUILDING_STACK) + 
+                                "&FIELD_STACK=" + JSON.stringify(FIELD_STACK);
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "./setup/create_zones", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                // Wait for a response
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log("zones established"); // here you should enable setup scripts
+                    }
+                }
+                xhr.send(params);
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Merge button constructor
+        L.Control.zoneButton = function(opts) {
+            return new L.Control.ZoneButton(opts);
+        }
+
+        // Add the merge button to the map
+        var zoneButton = L.Control.zoneButton().addTo(map);
 
     </script>
   </body>

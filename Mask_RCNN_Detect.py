@@ -89,6 +89,9 @@ class Mask_RCNN_Detect():
             building_ids = building_ids[building_ids != 0].astype(int).tolist()
             for i, ids in enumerate(building_ids):
                 points = np.argwhere(masks == ids).tolist() # gets as coordinates
+                if len(points) != 4:
+                    print("NOT 4 INSTANCE, SKIPPING BY DEFAULT")
+                    continue
                 for j in range(len(points)):
                     x = points[j][1]
                     y = points[j][0]

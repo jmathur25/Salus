@@ -16,6 +16,9 @@ import imagery
 import geolocation
 from detectors.Detector import Detector
 
+# server side scripts
+import setup
+
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 application.register_blueprint(person, url_prefix="/person")
@@ -64,16 +67,28 @@ def home(zoom=None, lat=None, lng=None):
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
+# ---- SETUP URLS ---- #
+
+@application.route('/setup', methods=['POST'])
+def setup_starter():
+    # from .setup import ...
+    return "success"
+
 @application.route('/setup/create_zones', methods=['POST'])
 def create_zones():
     result = request.form
     info = result_to_dict(result)
-    # todo...
+    print(info)
+    keys = ['building_stack', 'field_stack']
+    for k in keys:
+        json_acceptable_string = info[k].replace("'", "\"")
+        print(json_acceptable_string)
+        parsed = json.loads(json_acceptable_string)
+        info[k] = parsed
+    setup.handle_zone_data(info)
+    return 'success'
 
-@application.route('/setup', methods=['POST'])
-def setup():
-    # from .setup import ...
-    return "success"
+# --------- #
 
 @application.route('/setup/corners', methods=['POST'])
 def identify_region():
@@ -82,7 +97,7 @@ def identify_region():
     lat = float(info['lat'])
     lng = float(info['lng'])
     zoom = float(info['zoom'])
-    strategy = 'simple' # info['strategy']
+    strategy = info['strategy']
 
 
     imd = get_imd()
