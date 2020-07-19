@@ -1,2 +1,2 @@
 # Salus
-An iOS app that will be made at PennApps XX
+Salus is a campus safety system that enables school administrators to flexibly manage emergencies and real-time account of students that are safe.
