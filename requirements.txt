@@ -6,7 +6,7 @@ pillow
 matplotlib
 mysql.connector
 twilio
-tensorflow==1.14.0
+tensorflow==2.5.0
 opencv-python==4.1.0.25
 Keras==2.2.4
 imageio==2.5.0
